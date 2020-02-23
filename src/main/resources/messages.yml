@@ -1,0 +1,34 @@
+prefix: "&8[&6DataBackup&8]&7 "
+
+cmd:
+  info:
+    apply:
+      inventory:
+        sender: "&b%target%&7 のインベントリを &b%date%&7 時点に戻しました。"
+        target: "&b%date%&7 時点のインベントリに戻されました。"
+      ender-chest:
+        sender: "&b%target%&7 のエンダーチェストを &b%date%&7 時点に戻しました。"
+        target: "&b%date%&7 時点のエンダーチェストに戻されました。"
+      money:
+        sender: "&b%target%&7 の所持金を &b%date%&7 時点に戻しました。"
+        target: "&b%date%&7 時点の所持金に戻されました。"
+      xp:
+        sender: "&b%target%&7 の経験値を &b%date%&7 時点に戻しました。"
+        target: "&b%date%&7 時点の経験値に戻されました。"
+    show:
+      money: "&b%date%&7 時点の所持金: &b%amount%円"
+      xp: "&b%date%&7 時点の経験値: &b%amount%"
+    force-backup: "&b&b%target%&7 &7のデータをバックアップしました。"
+  help:
+    backup: "&b/db backup <target>&8: &7プレイヤーのバックアップを取ります。"
+    rollback: "&b/db rollback <type> <target> <file>&8: &7指定したデータを戻します。"
+    show: "&b/db show {offline} <type> <target> <file>&8: &7指定したデータの内訳を表示します。"
+  error:
+    not-enough-args: "&c引数が足りません。 &b/db help"
+    only-player: "&cこのコマンドはプレイヤーのみ実行できます。"
+    no-permission: "&cコマンドを実行する権限がありません: %perm%"
+    player-not-found: "&c指定したプレイヤー &b%player%&c が見つかりません。"
+    backup-not-found: "&c指定したバックアップは存在しません。"
+    economy-disabled: "このサーバーでは経済が使用できません。"
+    invalid-data-type: "無効なデータタイプです: %type%"
+    failed-to-apply-backup: "&b%date%&7 時点のバックアップを適用できませんでした。"

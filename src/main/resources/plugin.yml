@@ -1,0 +1,11 @@
+name: DataBackup
+main: net.okocraft.databackup.DataBackup
+version: ${project.version}
+api-version: "1.15"
+author: Siroshun09
+depend:
+  - Vault
+  - SiroLibrary
+commands:
+  databackup:
+    aliases: [db]

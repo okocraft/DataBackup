@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>net.okocraft.databackup</groupId>
+    <artifactId>databackup</artifactId>
+    <version>1.0</version>
+
+    <name>DataBackup</name>
+    <url>https://github.com/okocraft/DataBackup</url>
+
+    <licenses>
+        <license>
+            <name>GNU General Public License, Version 3.0</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/okocraft/DataBackup/issues</url>
+    </issueManagement>
+
+    <distributionManagement>
+        <repository>
+            <id>bintray-okocraft-maven-repo</id>
+            <name>okocraft-maven-repo</name>
+            <url>https://api.bintray.com/maven/okocraft/maven-repo/DataBackup/;publish=1</url>
+        </repository>
+    </distributionManagement>
+
+    <properties>
+        <project.charset>UTF-8</project.charset>
+        <java.version>11</java.version>
+        <project.build.sourceEncoding>${project.charset}</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>${project.charset}</project.reporting.outputEncoding>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+        <repository>
+            <id>bintray-siroplugins-maven-repo</id>
+            <url>https://dl.bintray.com/siroplugins/maven-repo</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.15.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.siroshun09</groupId>
+            <artifactId>sirolibrary</artifactId>
+            <version>1.5.3</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <defaultGoal>clean package</defaultGoal>
+
+        <resources>
+            <resource>
+                <targetPath>.</targetPath>
+                <filtering>true</filtering>
+                <directory>src/main/resources/</directory>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <finalName>${project.name}-${project.version}</finalName>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.1.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <phase>deploy</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <author>true</author>
+                    <show>private</show>
+                    <encoding>${project.charset}</encoding>
+                    <charset>${project.charset}</charset>
+                    <docencoding>${project.charset}</docencoding>
+                    <destDir>docs</destDir>
+                    <notimestamp>true</notimestamp>
+                    <bottom>
+                        <![CDATA[<p class="legalCopy">Copyright &#169; 2019-2020 <a href="https://github.com/Siroshun09">Siroshun09</a>. All rights reserved.</p>]]></bottom>
+                    <links>
+                        <link>https://hub.spigotmc.org/javadocs/spigot/</link>
+                        <link>https://javadoc.io/doc/org.jetbrains/annotations/18.0.0/</link>
+                        <link>https://siroplugins.github.io/SiroLibrary/</link>
+                    </links>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
