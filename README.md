@@ -10,7 +10,7 @@
 
 - Java 11+
 - Spigot
-- [SiroLibrary](https://github.com/SiroPlugins/SiroLibrary) 1.5.3+
+- [SiroLibrary](https://github.com/SiroPlugins/SiroLibrary) 1.5.4+
 
 ## Usage
 
