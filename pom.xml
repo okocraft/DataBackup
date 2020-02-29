@@ -6,7 +6,7 @@
 
     <groupId>net.okocraft.databackup</groupId>
     <artifactId>databackup</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
 
     <name>DataBackup</name>
     <url>https://github.com/okocraft/DataBackup</url>
@@ -64,7 +64,7 @@
         <dependency>
             <groupId>com.github.siroshun09</groupId>
             <artifactId>sirolibrary</artifactId>
-            <version>1.5.3</version>
+            <version>1.5.4</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

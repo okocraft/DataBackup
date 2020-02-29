@@ -4,6 +4,7 @@ import com.github.siroshun09.sirolibrary.file.FileUtil;
 import net.okocraft.databackup.Configuration;
 import net.okocraft.databackup.DataBackup;
 import net.okocraft.databackup.data.PlayerData;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,7 +40,7 @@ public class BackupCheckingTask implements Runnable {
 
                 for (Path file : files) {
                     Files.deleteIfExists(file);
-                    DataBackup.get().getLogger().info("ファイルを削除しました: " + file.toAbsolutePath().toString());
+                    DataBackup.get().getLogger().info("Deleted the file:" + file.toAbsolutePath().toString());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -47,10 +48,10 @@ public class BackupCheckingTask implements Runnable {
         }
     }
 
-    private boolean isExpired(Path path) {
+    private boolean isExpired(@NotNull Path path) {
         try {
             return Configuration.get().getBackupPeriod()
-                    < Duration.between(Files.getLastModifiedTime(path).toInstant(), Instant.now()).toDays();
+                    <= Duration.between(Files.getLastModifiedTime(path).toInstant(), Instant.now()).toDays();
         } catch (IOException e) {
             e.printStackTrace();
             return false;

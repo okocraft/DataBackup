@@ -2,6 +2,7 @@ package net.okocraft.databackup;
 
 import com.github.siroshun09.sirolibrary.SiroExecutors;
 import com.github.siroshun09.sirolibrary.bukkitutils.BukkitUtil;
+import com.github.siroshun09.sirolibrary.message.BukkitMessage;
 import net.okocraft.databackup.listeners.CommandListener;
 import net.okocraft.databackup.listeners.PlayerListener;
 import net.okocraft.databackup.tasks.BackupCheckingTask;
@@ -50,20 +51,20 @@ public class DataBackup extends JavaPlugin {
         executor.schedule(new PlayerBackupTask(), Configuration.get().getBackupInterval(), TimeUnit.MINUTES);
         getLogger().info("Scheduled the backup task.");
 
-        getLogger().info("Enabled " + getDescription().getName() + "-" + getDescription().getVersion());
+        BukkitMessage.printEnabledMsg(this);
     }
 
     @Override
     public void onDisable() {
         super.onDisable();
         BukkitUtil.unregisterEvents(this);
-        getLogger().info("Unregistered listeners.");
+        getLogger().info("Unregistered the listener.");
 
         Bukkit.getScheduler().cancelTasks(this);
         executor.shutdown();
         getLogger().info("Cancelled the backup task.");
 
-        getLogger().info("Disabled " + getDescription().getName() + "-" + getDescription().getVersion());
+        BukkitMessage.printDisabledMsg(this);
     }
 
     @NotNull

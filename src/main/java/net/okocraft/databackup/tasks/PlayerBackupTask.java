@@ -13,12 +13,14 @@ public class PlayerBackupTask implements Runnable {
 
     private int count;
     private int completed;
+    private long startTime;
 
     @Override
     public void run() {
-        DataBackup.get().getLogger().info("Backup task starting...");
+        DataBackup.get().getLogger().info("Backup task is starting...");
         int delay = 1;
         completed = 1;
+        startTime = System.currentTimeMillis();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             BukkitUtil.runLater(DataBackup.get(), () -> backup(player), delay);
@@ -34,7 +36,8 @@ public class PlayerBackupTask implements Runnable {
         completed++;
 
         if (count == completed) {
-            DataBackup.get().getLogger().info("Backup task completed.");
+            long took = System.currentTimeMillis() - startTime;
+            DataBackup.get().getLogger().info("Backup task was completed. (" + took + "ms)");
         }
     }
 }
