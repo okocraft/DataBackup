@@ -1,7 +1,7 @@
 package net.okocraft.databackup.data;
 
-import net.okocraft.databackup.DataBackup;
 import net.okocraft.databackup.Messages;
+import net.okocraft.databackup.VaultHooker;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +30,7 @@ public final class BackupApplier {
     }
 
     public static void applyMoney(@NotNull Player target, @NotNull PlayerData data) {
-        DataBackup.get().getVaultHooker().setBalance(target, data.getMoney());
+        VaultHooker.get().setBalance(target, data.getMoney());
         Messages.get().sendTargetAppliedMoney(target, data);
     }
 

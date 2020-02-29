@@ -11,17 +11,30 @@ import java.util.concurrent.TimeUnit;
 
 public class PlayerBackupTask implements Runnable {
 
+    private int count;
+    private int completed;
+
     @Override
     public void run() {
-        BukkitUtil.runNextTick(DataBackup.get(), this::backupAllPlayers);
-        DataBackup.get().getExecutor().schedule(this, Configuration.get().getBackupInterval(), TimeUnit.MINUTES);
-    }
+        DataBackup.get().getLogger().info("Backup task starting...");
+        int delay = 1;
+        completed = 1;
 
-    private void backupAllPlayers() {
-        Bukkit.getOnlinePlayers().forEach(this::backup);
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            BukkitUtil.runLater(DataBackup.get(), () -> backup(player), delay);
+            delay++;
+        }
+
+        count = delay;
+        DataBackup.get().getExecutor().schedule(this, Configuration.get().getBackupInterval(), TimeUnit.MINUTES);
     }
 
     private void backup(Player player) {
         new PlayerData(player).save();
+        completed++;
+
+        if (count == completed) {
+            DataBackup.get().getLogger().info("Backup task completed.");
+        }
     }
 }

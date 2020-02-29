@@ -1,9 +1,9 @@
 package net.okocraft.databackup.commands;
 
 import com.github.siroshun09.sirolibrary.config.BukkitYaml;
-import net.okocraft.databackup.DataBackup;
 import net.okocraft.databackup.Messages;
 import net.okocraft.databackup.Permissions;
+import net.okocraft.databackup.VaultHooker;
 import net.okocraft.databackup.data.BackupApplier;
 import net.okocraft.databackup.data.PlayerData;
 import org.bukkit.Bukkit;
@@ -71,7 +71,7 @@ public final class RollbackCmd {
     }
 
     private static void rollbackMoney(@NotNull CommandSender sender, @NotNull Player target, @NotNull PlayerData data) {
-        if (DataBackup.get().getVaultHooker().isEnabledEconomy()) {
+        if (VaultHooker.get().isEnabledEconomy()) {
             BackupApplier.applyMoney(target, data);
             Messages.get().sendSenderAppliedMoney(sender, target, data);
         } else {

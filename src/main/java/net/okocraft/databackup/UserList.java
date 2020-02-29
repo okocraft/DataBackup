@@ -38,6 +38,7 @@ public class UserList extends BukkitYaml {
     }
 
     public void updateAllUsers() {
+        DataBackup.get().getLogger().info("Start to update user list.");
         for (String name : getConfig().getKeys(false)) {
             getUUID(name).ifPresent(uuid -> {
                 String temp_name = Bukkit.getOfflinePlayer(uuid).getName();
@@ -47,6 +48,7 @@ public class UserList extends BukkitYaml {
                 }
             });
         }
+        DataBackup.get().getLogger().info("Completed to update user list.");
     }
 
     public Optional<UUID> getUUID(@NotNull String name) {

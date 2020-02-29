@@ -15,11 +15,13 @@ import java.util.concurrent.TimeUnit;
 
 public class DataBackup extends JavaPlugin {
     private static DataBackup INSTANCE;
+
     private final ScheduledExecutorService executor = SiroExecutors.newSingleScheduler("DataBackup-Thread");
-    private VaultHooker vaultHooker;
 
     public DataBackup() {
-        INSTANCE = this;
+        if (INSTANCE == null) {
+            INSTANCE = this;
+        }
     }
 
     public static DataBackup get() {
@@ -27,37 +29,45 @@ public class DataBackup extends JavaPlugin {
     }
 
     @Override
-    public void onLoad() {
-        super.onLoad();
-        Configuration.init();
-        Messages.init();
-        executor.submit(new BackupCheckingTask());
-    }
-
-    @Override
     public void onEnable() {
         super.onEnable();
-        vaultHooker = new VaultHooker();
+
+        Configuration.init();
+        Messages.init();
+
+        executor.submit(new BackupCheckingTask());
+        getLogger().info("Submitted the checking backup file task.");
+
+        VaultHooker.register();
+        getLogger().info("Connected to Vault.");
+
         BukkitUtil.registerEvents(PlayerListener.get(), this);
         BukkitUtil.setCommandExecutor(getCommand("databackup"), CommandListener.get());
+        getLogger().info("Registered the command \"/databackup\" (/db) and listeners.");
+
         UserList.get().updateAllUsers();
+
         executor.schedule(new PlayerBackupTask(), Configuration.get().getBackupInterval(), TimeUnit.MINUTES);
+        getLogger().info("Scheduled the backup task.");
+
+        getLogger().info("Enabled " + getDescription().getName() + "-" + getDescription().getVersion());
     }
 
     @Override
     public void onDisable() {
         super.onDisable();
         BukkitUtil.unregisterEvents(this);
+        getLogger().info("Unregistered listeners.");
+
         Bukkit.getScheduler().cancelTasks(this);
         executor.shutdown();
+        getLogger().info("Cancelled the backup task.");
+
+        getLogger().info("Disabled " + getDescription().getName() + "-" + getDescription().getVersion());
     }
 
     @NotNull
     public ScheduledExecutorService getExecutor() {
         return executor;
-    }
-
-    public VaultHooker getVaultHooker() {
-        return vaultHooker;
     }
 }

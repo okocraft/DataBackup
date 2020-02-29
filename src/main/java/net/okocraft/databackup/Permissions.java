@@ -15,8 +15,6 @@ public final class Permissions {
     @NotNull
     @Contract("_ -> new")
     private static Permission createOpPerm(@NotNull String name) {
-        Permission perm = new Permission(PREFIX + name, PermissionDefault.OP);
-        // if (!BukkitUtil.existPermission(perm)) BukkitUtil.addPermission(perm);
-        return perm;
+        return new Permission(PREFIX + name, PermissionDefault.OP);
     }
 }

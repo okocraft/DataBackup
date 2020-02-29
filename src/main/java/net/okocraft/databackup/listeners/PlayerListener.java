@@ -11,7 +11,6 @@ public class PlayerListener implements Listener {
     private final static PlayerListener INSTANCE = new PlayerListener();
 
     private PlayerListener() {
-
     }
 
     public static PlayerListener get() {

@@ -19,7 +19,6 @@ public class InventoryGui {
         String name = Objects.requireNonNullElse(Bukkit.getOfflinePlayer(data.getUuid()).getName(), "UNKNOWN");
         Inventory inv = DataBackupGui.createInventoryGui(
                 name + " のインベントリ (" + data.getFormattedDateTime() + ")").getInventory();
-
         inv.setContents(data.getInventory());
         player.openInventory(inv);
     }

@@ -7,14 +7,22 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
 
 public class VaultHooker {
+    private final static VaultHooker INSTANCE = new VaultHooker();
 
     private Economy economy;
 
-    VaultHooker() {
+    private VaultHooker() {
         RegisteredServiceProvider<Economy> rsp = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
         if (rsp != null) {
             economy = rsp.getProvider();
         }
+    }
+
+    public static VaultHooker get() {
+        return INSTANCE;
+    }
+
+    static void register() {
     }
 
     public double getBalance(@NotNull Player player) {
