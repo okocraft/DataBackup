@@ -9,7 +9,8 @@
 ## Requirements
 
 - Java 11+
-- Spigot
+- Spigot 1.15+
+- Vault
 - [SiroLibrary](https://github.com/SiroPlugins/SiroLibrary) 1.5.4+
 
 ## Usage
