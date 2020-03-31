@@ -6,6 +6,7 @@ author: Siroshun09
 depend:
   - Vault
   - SiroLibrary
+  - UserAPI
 commands:
   databackup:
     aliases: [db]

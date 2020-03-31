@@ -2,6 +2,7 @@ package net.okocraft.databackup.listeners;
 
 import net.okocraft.databackup.Messages;
 import net.okocraft.databackup.commands.BackupCmd;
+import net.okocraft.databackup.commands.CleanCmd;
 import net.okocraft.databackup.commands.RollbackCmd;
 import net.okocraft.databackup.commands.ShowCmd;
 import org.bukkit.command.Command;
@@ -18,7 +19,7 @@ import java.util.List;
 
 public class CommandListener implements CommandExecutor, TabCompleter {
     private final static CommandListener INSTANCE = new CommandListener();
-    private final List<String> subCmd = Arrays.asList("backup", "rollback", "show", "help");
+    private final List<String> subCmd = Arrays.asList("backup", "clean", "rollback", "show", "help");
 
     private CommandListener() {
 
@@ -34,6 +35,9 @@ public class CommandListener implements CommandExecutor, TabCompleter {
             switch (args[0].toLowerCase()) {
                 case "backup":
                     BackupCmd.run(sender, args);
+                    return true;
+                case "clean":
+                    CleanCmd.run(sender);
                     return true;
                 case "rollback":
                     RollbackCmd.run(sender, args);

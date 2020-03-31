@@ -22,43 +22,58 @@ public class BackupCheckingTask implements Runnable {
 
         DataBackup.get().getLogger().info("Checking backup files task is starting...");
         long startTime = System.currentTimeMillis();
+        int deleted;
 
-        List<Path> dirPaths;
         try {
-            dirPaths = Files.list(PlayerData.getDataDir())
-                    .filter(Files::isDirectory)
-                    .collect(Collectors.toList());
+            deleted = checkDir();
         } catch (IOException e) {
             DataBackup.get().getLogger().severe("Failed to complete checking task.");
             e.printStackTrace();
             return;
         }
 
+        printResult(deleted);
+
+        long took = System.currentTimeMillis() - startTime;
+        DataBackup.get().getLogger().info("Backup files check task was completed. (" + took + "ms)");
+    }
+
+    private int checkDir() throws IOException {
+        List<Path> dirPaths = getUserDirs();
         int count = 0;
 
         for (Path dir : dirPaths) {
-            try {
-                List<Path> files = Files.list(dir)
-                        .filter(Files::isRegularFile)
-                        .filter(p -> p.toString().endsWith(".yml"))
-                        .filter(this::isExpired)
-                        .collect(Collectors.toList());
-
-                for (Path file : files) {
-                    Files.deleteIfExists(file);
-                    DataBackup.get().getLogger().info("Deleted the file:" + file.toAbsolutePath().toString());
-                    count++;
-                }
-            } catch (IOException e) {
-                DataBackup.get().getLogger().severe("Failed to complete checking task.");
-                e.printStackTrace();
-                return;
-            }
+            count += checkUserDir(dir);
         }
 
-        long took = System.currentTimeMillis() - startTime;
-        DataBackup.get().getLogger().info(count + " files have been deleted.");
-        DataBackup.get().getLogger().info("Checking backup files task was completed. (" + took + "ms)");
+        return count;
+    }
+
+    private int checkUserDir(Path dir) throws IOException {
+        List<Path> files = getBackupFiles(dir);
+        int count = 0;
+
+        for (Path file : files) {
+            Files.deleteIfExists(file);
+            DataBackup.get().debug("Deleted the file:" + file.toAbsolutePath().toString());
+            count++;
+        }
+
+        return count;
+    }
+
+    private List<Path> getUserDirs() throws IOException {
+        return Files.list(PlayerData.getDataDir())
+                .filter(Files::isDirectory)
+                .collect(Collectors.toList());
+    }
+
+    private List<Path> getBackupFiles(Path dir) throws IOException {
+        return Files.list(dir)
+                .filter(Files::isRegularFile)
+                .filter(p -> p.toString().endsWith(".yml"))
+                .filter(this::isExpired)
+                .collect(Collectors.toList());
     }
 
     private boolean isExpired(@NotNull Path path) {
@@ -72,4 +87,13 @@ public class BackupCheckingTask implements Runnable {
         }
     }
 
+    private void printResult(int deleted) {
+        if (1 < deleted) {
+            DataBackup.get().getLogger().info(deleted + " files have been deleted.");
+        } else if (deleted == 0) {
+            DataBackup.get().getLogger().info("No file has been deleted.");
+        } else if (deleted == 1) {
+            DataBackup.get().getLogger().info("1 file has been deleted.");
+        }
+    }
 }

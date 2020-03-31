@@ -1,65 +1,57 @@
 package net.okocraft.databackup;
 
-import com.github.siroshun09.sirolibrary.config.BukkitYaml;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import net.okocraft.userapi.api.UserAPI;
+import net.okocraft.userapi.api.data.UserData;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-public class UserList extends BukkitYaml {
+public class UserList {
     private final static UserList INSTANCE = new UserList();
 
+    private Set<String> allUserName = new HashSet<>();
+
     private UserList() {
-        super(DataBackup.get().getDataFolder().toPath().resolve("users.yml"), true);
     }
 
     public static UserList get() {
         return INSTANCE;
     }
 
-    public void addUser(@NotNull Player player) {
-        if (!getUsers().contains(player.getName())) {
-            getConfig().set(player.getName(), player.getUniqueId().toString());
-            save();
-        }
-    }
-
-    public void removeUser(@NotNull String name) {
-        getConfig().set(name, null);
-        save();
-    }
-
-    public void setUser(@NotNull String name, @NotNull UUID uuid) {
-        getConfig().set(name, uuid.toString());
-        save();
+    public void update() {
+        DataBackup.get().getExecutor().execute(this::updateAllUsers);
     }
 
     public void updateAllUsers() {
-        DataBackup.get().getLogger().info("Start to update user list.");
-        for (String name : getConfig().getKeys(false)) {
-            getUUID(name).ifPresent(uuid -> {
-                String temp_name = Bukkit.getOfflinePlayer(uuid).getName();
-                if (temp_name != null && !name.equals(temp_name)) {
-                    setUser(name, uuid);
-                    removeUser(name);
-                }
-            });
-        }
-        DataBackup.get().getLogger().info("Completed to update user list.");
-    }
-
-    public Optional<UUID> getUUID(@NotNull String name) {
+        DataBackup.get().debug("Start to update user list.");
         try {
-            return Optional.of(UUID.fromString(getString(name, "")));
-        } catch (IllegalArgumentException ex) {
-            return Optional.empty();
+            allUserName = UserAPI.getAllUserName();
+        } catch (SQLException e) {
+            DataBackup.get().getLogger().severe("Failed to update user list.");
+            e.printStackTrace();
+            return;
         }
+        DataBackup.get().debug("Completed to update user list.");
     }
 
+    @NotNull
+    public Optional<UUID> getUUID(@NotNull String name) {
+        Optional<UUID> uuid = Optional.empty();
+        try {
+            Optional<UserData> data = UserAPI.getUserDataByName(name);
+            if (data.isPresent()) uuid = Optional.of(data.get().getUuid());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return uuid;
+    }
+
+    @NotNull
     public Set<String> getUsers() {
-        return Set.copyOf(getConfig().getKeys(false));
+        return allUserName;
     }
 }

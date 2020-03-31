@@ -19,7 +19,9 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onJoin(@NotNull PlayerJoinEvent e) {
-        UserList.get().addUser(e.getPlayer());
+        if (!UserList.get().getUsers().contains(e.getPlayer().getName())) {
+            UserList.get().update();
+        }
         new PlayerData(e.getPlayer()).save();
     }
 }

@@ -11,7 +11,8 @@
 - Java 11+
 - Spigot 1.15+
 - Vault
-- [SiroLibrary](https://github.com/SiroPlugins/SiroLibrary) 1.5.4+
+- [SiroLibrary](https://github.com/SiroPlugins/SiroLibrary) 1.7.1+
+- [UserAPI](https://github.com/okocraft/UserAPI) 1.0+
 
 ## Usage
 
@@ -27,6 +28,7 @@
 
 ```
 /db backup <target>: プレイヤーのバックアップを取ります。
+/db clean: 期限切れのバックアップファイルを削除します (起動毎に自動実行)
 /db rollback <type> <target> <file>: 指定したデータを戻します。
 /db show {offline} <type> <target> <file>: 指定したデータの内訳を表示します。
 ※ offline と指定しない限り、オンラインプレイヤーとして検索されます。

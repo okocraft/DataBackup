@@ -1,2 +1,3 @@
 interval: 30 # バックアップ間隔
-backup-period: 5 # 保存期間
+period: 5 # 保存期間
+debug: false

@@ -7,6 +7,7 @@ import net.okocraft.databackup.data.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class PlayerBackupTask implements Runnable {
@@ -17,12 +18,15 @@ public class PlayerBackupTask implements Runnable {
 
     @Override
     public void run() {
+        Set<Player> players = Set.copyOf(Bukkit.getOnlinePlayers());
+        if (players.size() == 0) return;
+
         DataBackup.get().getLogger().info("Backup task is starting...");
         int delay = 1;
         completed = 1;
         startTime = System.currentTimeMillis();
 
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        for (Player player : players) {
             BukkitUtil.runLater(DataBackup.get(), () -> backup(player), delay);
             delay++;
         }
@@ -34,6 +38,7 @@ public class PlayerBackupTask implements Runnable {
     private void backup(Player player) {
         new PlayerData(player).save();
         completed++;
+        DataBackup.get().debug("Backed up data: " + player.getName());
 
         if (count == completed) {
             long took = System.currentTimeMillis() - startTime;

@@ -9,6 +9,7 @@ public final class Permissions {
     private final static String PREFIX = "databackup.";
 
     public final static Permission CMD_BACKUP = createOpPerm("cmd.backup");
+    public final static Permission CMD_CLEAN = createOpPerm("cmd.clean");
     public final static Permission CMD_ROLLBACK = createOpPerm("cmd.rollback");
     public final static Permission CMD_SHOW_BACKUP = createOpPerm("cmd.show");
 

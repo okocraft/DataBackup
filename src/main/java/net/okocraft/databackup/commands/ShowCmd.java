@@ -44,7 +44,9 @@ public final class ShowCmd {
         }
 
         Path filePath = PlayerData.getDataDir().resolve(uuid.get().toString()).resolve(args[4]);
-        if (!CommandChecker.existBackup(sender, filePath)) return;
+        if (!CommandChecker.existBackup(sender, filePath)) {
+            return;
+        }
 
         showBackup(sender, args[2], new PlayerData(new BukkitYaml(filePath, true)));
     }
@@ -57,7 +59,10 @@ public final class ShowCmd {
         }
 
         Path filePath = PlayerData.getDataDir().resolve(target.getUniqueId().toString()).resolve(args[3]);
-        if (!CommandChecker.existBackup(sender, filePath)) return;
+        if (!CommandChecker.existBackup(sender, filePath)) {
+            Messages.get().sendBackupNotFound(sender);
+            return;
+        }
 
         showBackup(sender, args[1], new PlayerData(new BukkitYaml(filePath, true)));
     }

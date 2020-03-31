@@ -82,9 +82,19 @@ public class Messages extends BukkitConfig {
                 getString("cmd.info.forced-backup", "&b%target%&7 のデータをバックアップしました。").replace("%target%", target.getName()));
     }
 
+    public void sendCleanBackup(@NotNull CommandSender sender) {
+        sendMessageWithPrefix(sender,
+                getString("cmd.info.clean-backup", "期限切れバックアップファイルの削除します。コンソールを確認してください。"));
+    }
+
     public void sendBackupCmdHelp(@NotNull CommandSender sender) {
         sendMessageWithPrefix(sender,
                 getString("cmd.help.backup", "&b/db backup <target>&8: &7プレイヤーのバックアップを取ります。"));
+    }
+
+    public void sendCleanCmdHelp(@NotNull CommandSender sender) {
+        sendMessageWithPrefix(sender,
+                getString("cmd.help.clean", "&b/db clean&8: &7期限切れのバックアップを削除します。"));
     }
 
     public void sendRollbackCmdHelp(@NotNull CommandSender sender) {
@@ -101,6 +111,7 @@ public class Messages extends BukkitConfig {
         sendMessageWithPrefix(sender, "Version: &e" + DataBackup.get().getDescription().getVersion());
         sendMessageWithPrefix(sender, "");
         sendBackupCmdHelp(sender);
+        sendCleanCmdHelp(sender);
         sendRollbackCmdHelp(sender);
         sendShowCmdHelp(sender);
     }

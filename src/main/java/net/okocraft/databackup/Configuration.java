@@ -18,6 +18,10 @@ public class Configuration extends BukkitConfig {
     public static void init() {
     }
 
+    public boolean isDebugMode() {
+        return getBoolean("debug", false);
+    }
+
     public long getBackupInterval() {
         return getLong("interval", 30);
     }

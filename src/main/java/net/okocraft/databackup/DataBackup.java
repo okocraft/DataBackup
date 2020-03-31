@@ -37,19 +37,19 @@ public class DataBackup extends JavaPlugin {
         Messages.init();
 
         executor.submit(new BackupCheckingTask());
-        getLogger().info("Submitted the checking backup file task.");
+        debug("Submitted the checking backup file task.");
 
         VaultHooker.register();
-        getLogger().info("Connected to Vault.");
+        debug("Connected to Vault.");
 
         BukkitUtil.registerEvents(PlayerListener.get(), this);
         BukkitUtil.setCommandExecutor(getCommand("databackup"), CommandListener.get());
-        getLogger().info("Registered the command \"/databackup\" (/db) and listeners.");
+        debug("Registered the command \"/databackup\" (/db) and listeners.");
 
-        UserList.get().updateAllUsers();
+        UserList.get().update();
 
         executor.schedule(new PlayerBackupTask(), Configuration.get().getBackupInterval(), TimeUnit.MINUTES);
-        getLogger().info("Scheduled the backup task.");
+        debug("Scheduled the backup task.");
 
         BukkitMessage.printEnabledMsg(this);
     }
@@ -58,11 +58,11 @@ public class DataBackup extends JavaPlugin {
     public void onDisable() {
         super.onDisable();
         BukkitUtil.unregisterEvents(this);
-        getLogger().info("Unregistered the listener.");
+        debug("Unregistered the listener.");
 
         Bukkit.getScheduler().cancelTasks(this);
-        executor.shutdown();
-        getLogger().info("Cancelled the backup task.");
+        executor.shutdownNow();
+        debug("Cancelled the backup task.");
 
         BukkitMessage.printDisabledMsg(this);
     }
@@ -70,5 +70,11 @@ public class DataBackup extends JavaPlugin {
     @NotNull
     public ScheduledExecutorService getExecutor() {
         return executor;
+    }
+
+    public void debug(@NotNull String log) {
+        if (Configuration.get().isDebugMode()) {
+            getLogger().info("DEBUG | " + log);
+        }
     }
 }
