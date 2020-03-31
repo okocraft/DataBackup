@@ -11,7 +11,7 @@
 - Java 11+
 - Spigot 1.15+
 - Vault (所持金をバックアップする場合)
-- [SiroLibrary](https://github.com/SiroPlugins/SiroLibrary) 1.7.1+
+- [SiroLibrary](https://github.com/SiroPlugins/SiroLibrary) 1.8.0+
 - [UserAPI](https://github.com/okocraft/UserAPI) 1.0+
 
 ## Usage
