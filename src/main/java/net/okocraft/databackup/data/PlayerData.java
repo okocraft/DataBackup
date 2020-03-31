@@ -1,9 +1,9 @@
 package net.okocraft.databackup.data;
 
 import com.github.siroshun09.sirolibrary.config.BukkitYaml;
+import com.github.siroshun09.sirolibrary.economy.EconomyAPI;
 import com.github.siroshun09.sirolibrary.file.FileUtil;
 import net.okocraft.databackup.UserList;
-import net.okocraft.databackup.VaultHooker;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -54,7 +54,7 @@ public class PlayerData extends AbstractData {
     }
 
     public PlayerData(@NotNull Player player) {
-        this(player.getUniqueId(), LocalDateTime.now(), player.getExp(), VaultHooker.get().getBalance(player),
+        this(player.getUniqueId(), LocalDateTime.now(), player.getExp(), EconomyAPI.getBalance(player),
                 player.getInventory().getContents(), player.getEnderChest().getContents());
     }
 

@@ -39,9 +39,6 @@ public class DataBackup extends JavaPlugin {
         executor.submit(new BackupCheckingTask());
         debug("Submitted the checking backup file task.");
 
-        VaultHooker.register();
-        debug("Connected to Vault.");
-
         BukkitUtil.registerEvents(PlayerListener.get(), this);
         BukkitUtil.setCommandExecutor(getCommand("databackup"), CommandListener.get());
         debug("Registered the command \"/databackup\" (/db) and listeners.");

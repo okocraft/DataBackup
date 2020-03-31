@@ -1,7 +1,7 @@
 package net.okocraft.databackup.data;
 
+import com.github.siroshun09.sirolibrary.economy.EconomyAPI;
 import net.okocraft.databackup.Messages;
-import net.okocraft.databackup.VaultHooker;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +30,7 @@ public final class BackupApplier {
     }
 
     public static void applyMoney(@NotNull Player target, @NotNull PlayerData data) {
-        VaultHooker.get().setBalance(target, data.getMoney());
+        EconomyAPI.setBalance(target, data.getMoney());
         Messages.get().sendTargetAppliedMoney(target, data);
     }
 
