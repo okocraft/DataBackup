@@ -32,7 +32,7 @@ public class PlayerBackupTask implements Runnable {
         }
 
         count = delay;
-        DataBackup.get().getExecutor().schedule(this, Configuration.get().getBackupInterval(), TimeUnit.MINUTES);
+        DataBackup.get().getExecutor().schedule(new PlayerBackupTask(), Configuration.get().getBackupInterval(), TimeUnit.MINUTES);
     }
 
     private void backup(Player player) {
