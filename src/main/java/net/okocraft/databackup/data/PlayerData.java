@@ -31,7 +31,7 @@ public class PlayerData extends AbstractData {
     private final ItemStack[] inventory = new ItemStack[41];
     private final ItemStack[] enderChest = new ItemStack[27];
 
-    private PlayerData(UUID uuid, LocalDateTime dateTime, float xp, double money, @NotNull ItemStack[] inventory, ItemStack[] enderChest) {
+    PlayerData(UUID uuid, LocalDateTime dateTime, float xp, double money, @NotNull ItemStack[] inventory, ItemStack[] enderChest) {
         super(uuid, dateTime);
         this.xp = xp;
         this.money = money;
