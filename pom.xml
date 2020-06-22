@@ -48,6 +48,10 @@
             <id>bintray-okocraft-maven-repo</id>
             <url>https://dl.bintray.com/okocraft/maven-repo</url>
         </repository>
+        <repository>
+            <id>bintray-siroplugins-maven-repo</id>
+            <url>https://dl.bintray.com/siroplugins/maven-repo</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -68,6 +72,12 @@
             <artifactId>api</artifactId>
             <version>1.1</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.siroshun09.configapi</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>1.4</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
