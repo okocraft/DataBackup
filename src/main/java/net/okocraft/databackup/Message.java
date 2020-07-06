@@ -6,7 +6,8 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 public enum Message {
-    ;
+    INVENTORY_TITLE("gui-title.inventory", "&8%player% のインベントリ (%date%)"),
+    ENDERCHEST_TITLE("gui-title.enderchest", "&8%player% のエンダーチェスト (%date%)");
 
     private static FileConfiguration MESSAGE_CONFIG;
 

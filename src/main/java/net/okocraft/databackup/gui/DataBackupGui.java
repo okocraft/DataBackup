@@ -1,9 +1,12 @@
 package net.okocraft.databackup.gui;
 
+import net.okocraft.databackup.Message;
+import net.okocraft.databackup.data.PlayerData;
+import net.okocraft.databackup.util.Formatter;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 public class DataBackupGui implements InventoryHolder {
@@ -14,16 +17,24 @@ public class DataBackupGui implements InventoryHolder {
         inv = Bukkit.createInventory(this, size, title);
     }
 
-    @NotNull
-    @Contract("_ -> new")
-    public static DataBackupGui createInventoryGui(@NotNull String title) {
-        return new DataBackupGui(45, title);
+    public static void openInventoryGui(@NotNull Player player, @NotNull PlayerData data) {
+        String title = Message.INVENTORY_TITLE.getMessage()
+                .replace("%player%", data.getName().orElse("UNKNOWN"))
+                .replace("%date%", Formatter.datetime(data.getDateTime()));
+
+        Inventory inv = new DataBackupGui(45, title).getInventory();
+        inv.setContents(data.getInventory());
+        player.openInventory(inv);
     }
 
-    @NotNull
-    @Contract("_ -> new")
-    public static DataBackupGui createEnderChestGui(@NotNull String title) {
-        return new DataBackupGui(27, title);
+    public static void openEnderchestGui(@NotNull Player player, @NotNull PlayerData data) {
+        String title = Message.ENDERCHEST_TITLE.getMessage()
+                .replace("%player%", data.getName().orElse("UNKNOWN"))
+                .replace("%date%", Formatter.datetime(data.getDateTime()));
+
+        Inventory inv = new DataBackupGui(27, title).getInventory();
+        inv.setContents(data.getEnderchest());
+        player.openInventory(inv);
     }
 
     @Override
