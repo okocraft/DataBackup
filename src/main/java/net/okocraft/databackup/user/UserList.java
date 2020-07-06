@@ -49,10 +49,10 @@ public final class UserList {
             users = Arrays.stream(Bukkit.getOfflinePlayers())
                     .map(OfflinePlayer::getName)
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toUnmodifiableSet());
         }
 
-        return Set.copyOf(users);
+        return users;
     }
 
     private static boolean isUserAPIEnabled() {
