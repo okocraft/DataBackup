@@ -18,7 +18,7 @@ public enum Message {
         this.def = def;
     }
 
-    public static void setMessageConfig(@NotNull FileConfiguration config) {
+    public static void setMessageConfig(FileConfiguration config) {
         MESSAGE_CONFIG = config;
     }
 
