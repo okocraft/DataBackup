@@ -2,6 +2,7 @@ package net.okocraft.databackup.data;
 
 import com.github.siroshun09.configapi.bukkit.BukkitYaml;
 import net.okocraft.databackup.hooker.EconomyHooker;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.UUID;
 
 public class PlayerData extends BukkitYaml {
@@ -26,6 +28,11 @@ public class PlayerData extends BukkitYaml {
     @NotNull
     public UUID getUUID() {
         return UUID.fromString(getString(UUID_PATH));
+    }
+
+    @NotNull
+    public Optional<String> getName() {
+        return Optional.ofNullable(Bukkit.getOfflinePlayer(getUUID()).getName());
     }
 
     @NotNull
