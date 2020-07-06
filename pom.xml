@@ -52,6 +52,10 @@
             <id>bintray-siroplugins-maven-repo</id>
             <url>https://dl.bintray.com/siroplugins/maven-repo</url>
         </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -65,6 +69,12 @@
             <groupId>com.github.siroshun09</groupId>
             <artifactId>sirolibrary</artifactId>
             <version>1.8.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
