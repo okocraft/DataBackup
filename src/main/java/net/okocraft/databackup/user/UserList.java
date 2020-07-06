@@ -3,6 +3,7 @@ package net.okocraft.databackup.user;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,13 +13,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class UserList {
-
-    public UserList() {
-    }
+public final class UserList {
 
     @SuppressWarnings("deprecation")
-    public Optional<UUID> getUUID(@NotNull String name) {
+    @NotNull
+    public static Optional<UUID> getUUID(@NotNull String name) {
         Optional<UUID> uuid;
 
         if (isUserAPIEnabled()) {
@@ -35,7 +34,9 @@ public class UserList {
         }
     }
 
-    public Set<String> getUsers() {
+    @Unmodifiable
+    @NotNull
+    public static Set<String> getUsers() {
         Set<String> users;
 
         if (isUserAPIEnabled()) {
@@ -54,8 +55,7 @@ public class UserList {
         return Set.copyOf(users);
     }
 
-    private boolean isUserAPIEnabled() {
+    private static boolean isUserAPIEnabled() {
         return Bukkit.getPluginManager().isPluginEnabled("UserAPI");
     }
-
 }
