@@ -32,8 +32,7 @@ final class UserAPIHooker {
             return UserAPI.getAllUserName();
         } catch (SQLException e) {
             e.printStackTrace();
+            return Collections.emptySet();
         }
-
-        return Collections.emptySet();
     }
 }
