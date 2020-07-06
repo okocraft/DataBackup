@@ -1,7 +1,7 @@
-package net.okocraft.databackup.data;
+package old_ver.data;
 
 import com.github.siroshun09.sirolibrary.config.BukkitYaml;
-import net.okocraft.databackup.DataBackup;
+import old_ver.DataBackup;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;

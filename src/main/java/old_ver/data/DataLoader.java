@@ -1,10 +1,11 @@
-package net.okocraft.databackup.data;
+package old_ver.data;
 
 
 import com.github.siroshun09.configapi.bukkit.BukkitYaml;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -15,8 +16,8 @@ public class DataLoader {
 
     private final BukkitYaml yaml;
 
-    public DataLoader(BukkitYaml yaml) {
-        this.yaml = yaml;
+    public DataLoader(Path file) {
+        this.yaml = new BukkitYaml(file, true);
     }
 
     public PlayerData load() {

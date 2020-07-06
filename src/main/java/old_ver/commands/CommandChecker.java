@@ -1,6 +1,6 @@
-package net.okocraft.databackup.commands;
+package old_ver.commands;
 
-import net.okocraft.databackup.Messages;
+import old_ver.Messages;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
