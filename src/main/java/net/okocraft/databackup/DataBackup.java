@@ -11,7 +11,11 @@ public final class DataBackup extends JavaPlugin {
     @Override
     public void onLoad() {
         config = new Configuration(this);
+        debug("config.yml loaded.");
         Message.setMessageConfig(new BukkitConfig(this, "message.yml", true));
+        debug("message.yml loaded.");
+
+        getLogger().info("DataBackup v" + getDescription().getVersion() + " has been loaded!");
     }
 
     @Override
@@ -23,5 +27,11 @@ public final class DataBackup extends JavaPlugin {
     @NotNull
     public Configuration getConfiguration() {
         return config;
+    }
+
+    public void debug(@NotNull String log) {
+        if (config.isDebugMode()) {
+            getLogger().info("Debug: " + log);
+        }
     }
 }
