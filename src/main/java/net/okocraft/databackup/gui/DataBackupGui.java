@@ -18,7 +18,7 @@ public class DataBackupGui implements InventoryHolder {
     }
 
     public static void openInventoryGui(@NotNull Player player, @NotNull PlayerData data) {
-        String title = Message.INVENTORY_TITLE.getMessage()
+        String title = Message.INVENTORY_TITLE.getString()
                 .replace("%player%", data.getName().orElse("UNKNOWN"))
                 .replace("%date%", Formatter.datetime(data.getDateTime()));
 
@@ -28,7 +28,7 @@ public class DataBackupGui implements InventoryHolder {
     }
 
     public static void openEnderchestGui(@NotNull Player player, @NotNull PlayerData data) {
-        String title = Message.ENDERCHEST_TITLE.getMessage()
+        String title = Message.ENDERCHEST_TITLE.getString()
                 .replace("%player%", data.getName().orElse("UNKNOWN"))
                 .replace("%date%", Formatter.datetime(data.getDateTime()));
 
