@@ -27,6 +27,16 @@ final class UserAPIHooker {
     }
 
     @NotNull
+    static String getName(@NotNull UUID uuid) {
+        try {
+            return UserAPI.getUserData(uuid).getName();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    @NotNull
     static Set<String> getUsers() {
         try {
             return UserAPI.getAllUserName();

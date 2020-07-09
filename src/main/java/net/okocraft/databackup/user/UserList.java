@@ -1,5 +1,6 @@
 package net.okocraft.databackup.user;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
@@ -32,6 +33,19 @@ public final class UserList {
 
             return Optional.of(Bukkit.getOfflinePlayer(name).getUniqueId());
         }
+    }
+
+    @NotNull
+    public static String getName(@NotNull UUID uuid) {
+        String name;
+
+        if (isUserAPIEnabled()) {
+            name = UserAPIHooker.getName(uuid);
+        } else {
+            name = Bukkit.getOfflinePlayer(uuid).getName();
+        }
+
+        return StringUtils.isEmpty(name) ? "UNKNOWN" : name;
     }
 
     @Unmodifiable
