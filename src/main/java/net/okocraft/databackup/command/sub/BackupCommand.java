@@ -7,7 +7,6 @@ import com.github.siroshun09.command.bukkit.BukkitArgumentList;
 import com.github.siroshun09.command.sender.Sender;
 import net.okocraft.databackup.DataBackup;
 import net.okocraft.databackup.Message;
-import net.okocraft.databackup.data.PlayerData;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
@@ -96,7 +95,7 @@ public class BackupCommand implements Command {
 
     private CommandResult backupAll(@NotNull Sender sender) {
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            if (!backup(player)) {
+            if (!plugin.getStorage().backup(player)) {
                 Message.COMMAND_BACKUP_FAILURE.send(sender);
                 return CommandResult.STATE_ERROR;
             }
@@ -114,18 +113,12 @@ public class BackupCommand implements Command {
             return CommandResult.STATE_ERROR;
         }
 
-        if (backup(target)) {
+        if (plugin.getStorage().backup(target)) {
             Message.COMMAND_BACKUP_PLAYER.replacePlayer(target.getName()).send(sender);
             return CommandResult.SUCCESS;
         } else {
             Message.COMMAND_BACKUP_FAILURE.send(sender);
             return CommandResult.STATE_ERROR;
         }
-    }
-
-    private boolean backup(Player player) {
-        PlayerData data = new PlayerData(plugin.getNewBackupFile(player));
-        data.setData(player);
-        return data.save();
     }
 }
