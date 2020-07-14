@@ -49,6 +49,11 @@ public class BackupStorage {
     }
 
     @NotNull
+    public Set<DataType> getDataList() {
+        return Set.copyOf(dataType);
+    }
+
+    @NotNull
     public List<String> getDataListAsString() {
         return dataType.stream().map(DataType::getName).collect(Collectors.toUnmodifiableList());
     }
