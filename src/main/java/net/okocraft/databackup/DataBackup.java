@@ -1,26 +1,24 @@
 package net.okocraft.databackup;
 
 import com.github.siroshun09.configapi.bukkit.BukkitConfig;
-import org.bukkit.entity.Player;
+import net.okocraft.databackup.data.BackupStorage;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.file.Path;
-import java.time.LocalDateTime;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 public final class DataBackup extends JavaPlugin {
 
+    private BackupStorage storage;
     private Configuration config;
-    private Path playerDir;
     private ScheduledExecutorService scheduler;
 
     @Override
     public void onLoad() {
         config = new Configuration(this);
-        playerDir = config.getDestinationDir().resolve("playerdata");
         debug("config.yml loaded.");
+
         Message.setMessageConfig(new BukkitConfig(this, "message.yml", true));
         debug("message.yml loaded.");
 
@@ -29,6 +27,7 @@ public final class DataBackup extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        storage = new BackupStorage(config.getDestinationDir());
         scheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
@@ -44,13 +43,8 @@ public final class DataBackup extends JavaPlugin {
     }
 
     @NotNull
-    public Path getPlayerDataDir() {
-        return playerDir;
-    }
-
-    @NotNull
-    public Path getNewBackupFile(@NotNull Player player) {
-        return playerDir.resolve(player.getUniqueId().toString()).resolve(LocalDateTime.now().toString() + ".yml");
+    public BackupStorage getStorage() {
+        return storage;
     }
 
     @NotNull
