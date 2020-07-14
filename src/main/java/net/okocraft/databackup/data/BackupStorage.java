@@ -76,10 +76,7 @@ public class BackupStorage {
         if (Files.exists(filePath)) {
             BukkitYaml yaml = new BukkitYaml(filePath);
 
-            LocalDateTime dateTime =
-                    LocalDateTime.from(DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse(yaml.getString(DATETIME_PATH)));
-
-            dataType.load(yaml).show(player, owner, dateTime);
+            dataType.load(yaml).show(player, owner, getDateTime(yaml));
             return true;
         } else {
             Message.COMMAND_BACKUP_NOT_FOUND.send(player);
@@ -113,6 +110,16 @@ public class BackupStorage {
 
     @NotNull
     public Path createFilePath(@NotNull Player player) {
-        return getPlayerDirectory(player.getUniqueId()).resolve(LocalDateTime.now().toString() + ".yml");
+        return createFilePath(player, LocalDateTime.now().toString() + ".yml");
+    }
+
+    @NotNull
+    public Path createFilePath(@NotNull Player player, @NotNull String fileName) {
+        return getPlayerDirectory(player.getUniqueId()).resolve(fileName);
+    }
+
+    @NotNull
+    public LocalDateTime getDateTime(@NotNull BukkitYaml yaml) {
+        return LocalDateTime.from(DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse(yaml.getString(DATETIME_PATH)));
     }
 }
