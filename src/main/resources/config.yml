@@ -1,5 +1,5 @@
 backup:
-  destination-directory: "./plugins/databackup/backups"
+  destination-directory: "./plugins/DataBackup/backups"
   interval: 30
   period: 5
 

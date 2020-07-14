@@ -22,7 +22,7 @@ public class Configuration extends BukkitConfig {
 
     @NotNull
     public Path getDestinationDir() {
-        return Paths.get(getString("backup.destination-directory", "./plugins/databackup/backups"));
+        return Paths.get(getString("backup.destination-directory", "./plugins/DataBackup/backups"));
     }
 
     public boolean isDebugMode() {
