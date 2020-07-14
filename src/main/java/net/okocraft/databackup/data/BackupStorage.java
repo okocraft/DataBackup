@@ -5,7 +5,6 @@ import net.okocraft.databackup.Message;
 import net.okocraft.databackup.data.impl.EnderChestData;
 import net.okocraft.databackup.data.impl.ExpData;
 import net.okocraft.databackup.data.impl.InventoryData;
-import net.okocraft.databackup.hooker.vault.MoneyData;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +36,6 @@ public class BackupStorage {
         registerDataType(EnderChestData.getName(), EnderChestData::load, EnderChestData::backup);
         registerDataType(ExpData.getName(), ExpData::load, ExpData::backup);
         registerDataType(InventoryData.getName(), InventoryData::load, InventoryData::backup);
-        registerDataType(MoneyData.getName(), MoneyData::load, MoneyData::backup);
     }
 
     public boolean registerDataType(@NotNull DataType type) {

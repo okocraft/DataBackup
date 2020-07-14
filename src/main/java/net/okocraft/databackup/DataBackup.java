@@ -2,6 +2,7 @@ package net.okocraft.databackup;
 
 import com.github.siroshun09.configapi.bukkit.BukkitConfig;
 import net.okocraft.databackup.data.BackupStorage;
+import net.okocraft.databackup.hooker.vault.MoneyData;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -56,5 +57,15 @@ public final class DataBackup extends JavaPlugin {
         if (config.isDebugMode()) {
             getLogger().info("Debug: " + log);
         }
+    }
+
+    private void hook() {
+        if (isLoaded("Vault")) {
+            storage.registerDataType(MoneyData.getName(), MoneyData::load, MoneyData::backup);
+        }
+    }
+
+    private boolean isLoaded(@NotNull String name) {
+        return getServer().getPluginManager().getPlugin(name) != null;
     }
 }
