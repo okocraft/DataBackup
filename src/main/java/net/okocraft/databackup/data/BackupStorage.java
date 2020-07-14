@@ -87,8 +87,14 @@ public class BackupStorage {
 
     @NotNull
     public List<String> getFileList(@NotNull UUID uuid) {
+        Path dir = getPlayerDirectory(uuid);
+
+        if (!Files.exists(dir)) {
+            return Collections.emptyList();
+        }
+
         try {
-            return Files.list(getPlayerDirectory(uuid))
+            return Files.list(dir)
                     .filter(Files::isReadable)
                     .filter(Files::isRegularFile)
                     .filter(p -> p.toString().endsWith(".yml"))
