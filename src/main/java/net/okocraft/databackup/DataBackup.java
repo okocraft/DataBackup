@@ -5,6 +5,7 @@ import net.okocraft.databackup.data.BackupStorage;
 import net.okocraft.databackup.hooker.mcmmo.McMMORegister;
 import net.okocraft.databackup.hooker.vault.MoneyData;
 import net.okocraft.databackup.task.BackupTask;
+import net.okocraft.databackup.task.FileCheckTask;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,6 +37,8 @@ public final class DataBackup extends JavaPlugin {
 
         int interval = config.getBackupInterval();
         scheduler.scheduleAtFixedRate(new BackupTask(this), interval, interval, TimeUnit.HOURS);
+
+        scheduler.execute(new FileCheckTask(this));
     }
 
     @Override

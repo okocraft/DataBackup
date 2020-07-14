@@ -103,6 +103,10 @@ public class BackupStorage {
         }
     }
 
+    public Path getPlayerDataDir() {
+        return playerDir;
+    }
+
     private Path getPlayerDirectory(@NotNull UUID uuid) {
         return playerDir.resolve(uuid.toString());
     }
