@@ -1,13 +1,16 @@
 package net.okocraft.databackup.gui;
 
 import net.okocraft.databackup.Message;
-import net.okocraft.databackup.data.PlayerData;
-import net.okocraft.databackup.util.Formatter;
+import net.okocraft.databackup.user.UserList;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class DataBackupGui implements InventoryHolder {
 
@@ -17,23 +20,23 @@ public class DataBackupGui implements InventoryHolder {
         inv = Bukkit.createInventory(this, size, title);
     }
 
-    public static void openInventoryGui(@NotNull Player player, @NotNull PlayerData data) {
-        String title = Message.INVENTORY_TITLE.getString()
-                .replace("%player%", data.getName().orElse("UNKNOWN"))
-                .replace("%date%", Formatter.datetime(data.getDateTime()));
+    public static void openInventoryGui(@NotNull Player player, @NotNull ItemStack[] items,
+                                        @NotNull UUID owner, @NotNull LocalDateTime backupTime) {
+        String title =
+                Message.INVENTORY_TITLE.replacePlayer(UserList.getName(owner)).replaceDate(backupTime).toString();
 
         Inventory inv = new DataBackupGui(45, title).getInventory();
-        inv.setContents(data.getInventory());
+        inv.setContents(items);
         player.openInventory(inv);
     }
 
-    public static void openEnderchestGui(@NotNull Player player, @NotNull PlayerData data) {
-        String title = Message.ENDERCHEST_TITLE.getString()
-                .replace("%player%", data.getName().orElse("UNKNOWN"))
-                .replace("%date%", Formatter.datetime(data.getDateTime()));
+    public static void openEnderchestGui(@NotNull Player player, @NotNull ItemStack[] items,
+                                         @NotNull UUID owner, @NotNull LocalDateTime backupTime) {
+        String title =
+                Message.ENDERCHEST_TITLE.replacePlayer(UserList.getName(owner)).replaceDate(backupTime).toString();
 
         Inventory inv = new DataBackupGui(27, title).getInventory();
-        inv.setContents(data.getEnderchest());
+        inv.setContents(items);
         player.openInventory(inv);
     }
 

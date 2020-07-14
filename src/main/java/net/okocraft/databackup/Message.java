@@ -6,6 +6,9 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public enum Message {
     PREFIX("prefix", "&8[&6DataBackup&8]&r "),
 
@@ -14,13 +17,20 @@ public enum Message {
     COMMAND_BACKUP_ALL("command.backup.all", "&7ログイン中のプレイヤーのデータをバックアップしました。"),
     COMMAND_BACKUP_PLAYER("command.backup.player", "&b%player% &7のデータをバックアップしました。"),
     COMMAND_BACKUP_FAILURE("command.backup.failure", "&cバックアップに失敗しました。コンソールを確認してください。"),
+    COMMAND_SHOW_USAGE("command.show.usage", "&b/db show {offline} <type> <target> <file>&8 - &7&7指定したデータの内訳を表示します。"),
+    COMMAND_SHOW_EXP("command.show.exp", "&b%date%&7 時点の経験値: &b%amount%"),
+    COMMAND_SHOW_MONEY("command.show.money", "&b%date%&7 時点の所持金: &b%amount%円"),
 
     COMMAND_NO_PERMISSION("command.no-permission", "&c権限がありません: "),
+    COMMAND_ONLY_PLAYER("command.only-player", "&cこのコマンドはプレイヤーのみ実行できます。"),
+    COMMAND_INVALID_DATA_TYPE("command.invalid-data-type", "無効なデータタイプです: %type%"),
     COMMAND_PLAYER_NOT_FOUND("command.player-not-found", "&cプレイヤー %player% は見つかりませんでした。"),
+    COMMAND_BACKUP_NOT_FOUND("command.backup-not-found", "&c指定したバックアップは存在しません。"),
 
     INVENTORY_TITLE("gui-title.inventory", "&8%player% のインベントリ (%date%)"),
     ENDERCHEST_TITLE("gui-title.enderchest", "&8%player% のエンダーチェスト (%date%)");
 
+    private final static DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_hh-mm-ss");
     private static FileConfiguration MESSAGE_CONFIG;
 
     private final String key;
@@ -53,6 +63,24 @@ public enum Message {
         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', PREFIX.getString() + getEdited()));
     }
 
+    public Message replaceDate(@NotNull LocalDateTime dateTime) {
+        edited = getEdited().replace("%date%", FORMATTER.format(dateTime));
+
+        return this;
+    }
+
+    public Message replaceExp(float exp) {
+        edited = getEdited().replace("%amount%", String.valueOf(exp));
+
+        return this;
+    }
+
+    public Message replaceMoney(double money) {
+        edited = getEdited().replace("%amount%", String.valueOf(money));
+
+        return this;
+    }
+
     public Message replacePermission(@NotNull String perm) {
         edited = getEdited().replace("%perm%", perm);
 
@@ -63,6 +91,17 @@ public enum Message {
         edited = getEdited().replace("%player%", name);
 
         return this;
+    }
+
+    public Message replaceType(@NotNull String type) {
+        edited = getEdited().replace("%type%", type);
+
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return getEdited();
     }
 
     private String getEdited() {
