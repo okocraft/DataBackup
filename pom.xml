@@ -139,7 +139,7 @@
                             <addDefaultEntries>false</addDefaultEntries>
                         </manifest>
                         <manifestEntries>
-                            <Automatic-Module-Name>${project.artifactId}</Automatic-Module-Name>
+                            <Automatic-Module-Name>${project.groupId}</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -163,7 +163,7 @@
                     <relocations>
                         <relocation>
                             <pattern>com.github.siroshun09</pattern>
-                            <shadedPattern>${project.artifactId}.lib</shadedPattern>
+                            <shadedPattern>${project.groupId}.lib</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
