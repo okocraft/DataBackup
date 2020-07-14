@@ -20,6 +20,7 @@ public enum Message {
     COMMAND_SHOW_USAGE("command.show.usage", "&b/db show {offline} <type> <target> <file>&8 - &7&7指定したデータの内訳を表示します。"),
     COMMAND_SHOW_EXP("command.show.exp", "&b%date%&7 時点の経験値: &b%amount%"),
     COMMAND_SHOW_MONEY("command.show.money", "&b%date%&7 時点の所持金: &b%amount%円"),
+    COMMAND_SHOW_MCMMO("command.show.mcmmo", "&b%date%&7 時点の &b%skill%&7 の経験値: &b%amount%"),
 
     COMMAND_NO_PERMISSION("command.no-permission", "&c権限がありません: "),
     COMMAND_ONLY_PLAYER("command.only-player", "&cこのコマンドはプレイヤーのみ実行できます。"),
@@ -89,6 +90,18 @@ public enum Message {
 
     public Message replacePlayer(@NotNull String name) {
         edited = getEdited().replace("%player%", name);
+
+        return this;
+    }
+
+    public Message replaceSkill(@NotNull String skillName) {
+        edited = getEdited().replace("%skill%", skillName);
+
+        return this;
+    }
+
+    public Message replaceSkillXp(int xp) {
+        edited = getEdited().replace("%amount%", String.valueOf(xp));
 
         return this;
     }
