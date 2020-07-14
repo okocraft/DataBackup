@@ -28,4 +28,8 @@ public class Configuration extends BukkitConfig {
     public boolean isDebugMode() {
         return getBoolean("debug", false);
     }
+
+    public boolean isBroadcastMode() {
+        return getBoolean("backup.broadcast");
+    }
 }

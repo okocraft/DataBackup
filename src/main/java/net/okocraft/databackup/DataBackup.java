@@ -4,11 +4,13 @@ import com.github.siroshun09.configapi.bukkit.BukkitConfig;
 import net.okocraft.databackup.data.BackupStorage;
 import net.okocraft.databackup.hooker.mcmmo.McMMORegister;
 import net.okocraft.databackup.hooker.vault.MoneyData;
+import net.okocraft.databackup.task.BackupTask;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public final class DataBackup extends JavaPlugin {
 
@@ -31,6 +33,9 @@ public final class DataBackup extends JavaPlugin {
     public void onEnable() {
         storage = new BackupStorage(config.getDestinationDir());
         scheduler = Executors.newSingleThreadScheduledExecutor();
+
+        int interval = config.getBackupInterval();
+        scheduler.scheduleAtFixedRate(new BackupTask(this), interval, interval, TimeUnit.HOURS);
     }
 
     @Override

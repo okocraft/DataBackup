@@ -12,6 +12,9 @@ import java.time.format.DateTimeFormatter;
 public enum Message {
     PREFIX("prefix", "&8[&6DataBackup&8]&r "),
 
+    BACKUP_START("backup.start", "&7プレイヤーデータのバックアップを開始しています..."),
+    BACKUP_FINISH("backup.finish", "&7バックアップが完了しました。"),
+
     COMMAND_USAGE("command.usage", "&b/databackup help"),
     COMMAND_BACKUP_USAGE("command.backup.usage", "&b/db backup <player|all>&8 - &7プレイヤーのデータをバックアップします"),
     COMMAND_BACKUP_ALL("command.backup.all", "&7ログイン中のプレイヤーのデータをバックアップしました。"),

@@ -108,7 +108,7 @@ public class BackupStorage {
     }
 
     @NotNull
-    private Path createFilePath(@NotNull Player player) {
+    public Path createFilePath(@NotNull Player player) {
         return getPlayerDirectory(player.getUniqueId()).resolve(LocalDateTime.now().toString() + ".yml");
     }
 }
