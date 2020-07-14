@@ -63,6 +63,7 @@ public final class DataBackup extends JavaPlugin {
     private void hook() {
         if (isLoaded("Vault")) {
             storage.registerDataType(MoneyData.getName(), MoneyData::load, MoneyData::backup);
+            getLogger().info("Economy data is now backed up!");
         }
 
         if (isLoaded("mcMMO")) {
