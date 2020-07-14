@@ -105,30 +105,30 @@ public class ShowCommand implements Command {
 
     @NotNull
     private List<String> tabComplete(@NotNull ArgumentList args, boolean offline) {
-        if (args.size() == 1) {
+        if (args.size() == 2) {
             List<String> result = new LinkedList<>(plugin.getStorage().getDataListAsString());
 
             if (!offline) {
                 result.add("offline");
             }
 
-            return StringUtil.copyPartialMatches(args.get(0), result, new LinkedList<>());
+            return StringUtil.copyPartialMatches(args.get(1), result, new LinkedList<>());
         }
 
-        if (args.size() == 2) {
+        if (args.size() == 3) {
             List<String> result = List.copyOf(offline ?
                     UserList.getUsers() :
                     plugin.getServer().getOnlinePlayers().stream()
                             .map(HumanEntity::getName)
                             .collect(Collectors.toList()));
 
-            return StringUtil.copyPartialMatches(args.get(1), result, new LinkedList<>());
+            return StringUtil.copyPartialMatches(args.get(2), result, new LinkedList<>());
         }
 
-        if (args.size() == 3) {
+        if (args.size() == 4) {
             Optional<UUID> uuid = UserList.getUUID(args.get(1));
             if (uuid.isPresent()) {
-                return StringUtil.copyPartialMatches(args.get(2), plugin.getStorage().getFileList(uuid.get()), new LinkedList<>());
+                return StringUtil.copyPartialMatches(args.get(3), plugin.getStorage().getFileList(uuid.get()), new LinkedList<>());
             }
         }
 
