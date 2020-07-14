@@ -70,11 +70,12 @@ public class ShowCommand implements Command {
             return CommandResult.NO_PERMISSION;
         }
 
-        if (!(sender instanceof Player)) {
-            Message.COMMAND_ONLY_PLAYER.send(sender);
-        }
+        Player player = plugin.getServer().getPlayer(sender.getUUID());
 
-        Player player = (Player) sender;
+        if (player == null) {
+            Message.COMMAND_ONLY_PLAYER.send(sender);
+            return CommandResult.NOT_PLAYER;
+        }
 
         if (args.size() < 4) {
             Message.COMMAND_SHOW_USAGE.send(sender);
