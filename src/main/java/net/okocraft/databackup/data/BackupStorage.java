@@ -5,6 +5,7 @@ import net.okocraft.databackup.Message;
 import net.okocraft.databackup.data.impl.EnderChestData;
 import net.okocraft.databackup.data.impl.ExpData;
 import net.okocraft.databackup.data.impl.InventoryData;
+import net.okocraft.databackup.util.Formatter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -110,7 +111,7 @@ public class BackupStorage {
 
     @NotNull
     public Path createFilePath(@NotNull Player player) {
-        return createFilePath(player, LocalDateTime.now().toString() + ".yml");
+        return createFilePath(player, Formatter.fileName());
     }
 
     @NotNull
