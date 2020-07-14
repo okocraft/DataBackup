@@ -49,7 +49,7 @@ public class BackupStorage {
     }
 
     @NotNull
-    public List<String> getDataList() {
+    public List<String> getDataListAsString() {
         return dataType.stream().map(DataType::getName).collect(Collectors.toUnmodifiableList());
     }
 

@@ -105,7 +105,7 @@ public class ShowCommand implements Command {
     @NotNull
     private List<String> tabComplete(@NotNull ArgumentList args, boolean offline) {
         if (args.size() == 1) {
-            List<String> result = new LinkedList<>(plugin.getStorage().getDataList());
+            List<String> result = new LinkedList<>(plugin.getStorage().getDataListAsString());
 
             if (!offline) {
                 result.add("offline");
