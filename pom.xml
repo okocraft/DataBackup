@@ -90,7 +90,7 @@
         <dependency>
             <groupId>com.github.siroshun09.configapi</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.5</version>
+            <version>1.6</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
