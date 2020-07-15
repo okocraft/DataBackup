@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BackupTask implements Runnable {
 
@@ -62,9 +63,14 @@ public class BackupTask implements Runnable {
         BukkitYaml yaml = new BukkitYaml(storage.createFilePath(player));
         Set<BackupData> result = new HashSet<>();
 
-        CompletableFuture.runAsync(() ->
-                plugin.getServer().getScheduler().runTask(plugin, () -> getData(result, player))
-        ).join();
+        AtomicBoolean done = new AtomicBoolean(false);
+
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            getData(result, player);
+            done.set(true);
+        });
+
+        while (!done.get()) ; // CompletableFuture.join() の代わり
 
         result.forEach(type -> type.save(yaml));
 
