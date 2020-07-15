@@ -70,6 +70,7 @@ public enum Message {
         }
     }
 
+    @NotNull
     public String getColorized() {
         return colorize(getEdited());
     }
