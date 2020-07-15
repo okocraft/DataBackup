@@ -64,6 +64,11 @@ public class BackupStorage {
         return dataType.stream().filter(d -> d.getName().equalsIgnoreCase(name)).findFirst();
     }
 
+    @NotNull
+    public String getDatetimePath() {
+        return DATETIME_PATH;
+    }
+
     public boolean backup(@NotNull Player player) {
         BukkitYaml yaml = new BukkitYaml(createFilePath(player));
         dataType.stream().map(d -> d.backup(player)).forEach(d -> d.save(yaml));

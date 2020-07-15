@@ -10,6 +10,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -60,9 +62,13 @@ public class BackupTask implements Runnable {
         BukkitYaml yaml = new BukkitYaml(storage.createFilePath(player));
         Set<BackupData> result = new HashSet<>();
 
-        plugin.getServer().getScheduler().runTask(plugin, () -> getData(result, player));
+        CompletableFuture.runAsync(() ->
+                plugin.getServer().getScheduler().runTask(plugin, () -> getData(result, player))
+        ).join();
 
         result.forEach(type -> type.save(yaml));
+
+        yaml.set(storage.getDatetimePath(), DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now()));
 
         if (yaml.save()) {
             plugin.debug(player.getName() + " was successfully backed up.");
