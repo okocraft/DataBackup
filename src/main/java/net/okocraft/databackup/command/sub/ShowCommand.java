@@ -126,7 +126,7 @@ public class ShowCommand implements Command {
         }
 
         if (args.size() == 4) {
-            Optional<UUID> uuid = UserList.getUUID(args.get(1));
+            Optional<UUID> uuid = UserList.getUUID(args.get(2));
             if (uuid.isPresent()) {
                 return StringUtil.copyPartialMatches(args.get(3), plugin.getStorage().getFileList(uuid.get()), new LinkedList<>());
             }
