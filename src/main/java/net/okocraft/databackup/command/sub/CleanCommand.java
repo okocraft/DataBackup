@@ -44,7 +44,7 @@ public class CleanCommand implements Command {
     @Override
     @NotNull
     public String getUsage() {
-        return Message.COMMAND_CLEAN_USAGE.getString();
+        return Message.COMMAND_CLEAN_USAGE.getColorized();
     }
 
     @Override

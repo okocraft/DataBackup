@@ -56,6 +56,12 @@ public enum Message {
         MESSAGE_CONFIG = config;
     }
 
+    @NotNull
+    public static String colorize(@NotNull String str) {
+        return ChatColor.translateAlternateColorCodes('&', str);
+    }
+
+    @NotNull
     public String getString() {
         if (MESSAGE_CONFIG != null && MESSAGE_CONFIG.isLoaded()) {
             return MESSAGE_CONFIG.getString(key, def);
@@ -64,12 +70,16 @@ public enum Message {
         }
     }
 
+    public String getColorized() {
+        return colorize(getEdited());
+    }
+
     public void send(@NotNull CommandSender sender) {
-        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', PREFIX.getString() + getEdited()));
+        sender.sendMessage(colorize(PREFIX.getString() + getEdited()));
     }
 
     public void send(@NotNull Sender sender) {
-        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', PREFIX.getString() + getEdited()));
+        sender.sendMessage(colorize(PREFIX.getString() + getEdited()));
     }
 
     public Message replaceDate(@NotNull LocalDateTime dateTime) {

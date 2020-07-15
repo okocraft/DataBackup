@@ -48,7 +48,7 @@ public class BackupCommand implements Command {
     @Override
     @NotNull
     public String getUsage() {
-        return Message.COMMAND_BACKUP_USAGE.getString();
+        return Message.COMMAND_BACKUP_USAGE.getColorized();
     }
 
     @Override
@@ -67,7 +67,7 @@ public class BackupCommand implements Command {
         }
 
         if (args.size() < 2) {
-            Message.COMMAND_BACKUP_USAGE.send(sender);
+            sender.sendMessage(getUsage());
             return CommandResult.NO_ARGUMENT;
         }
 

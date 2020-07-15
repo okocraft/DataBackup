@@ -23,7 +23,7 @@ public class DataBackupGui implements InventoryHolder {
     public static void openInventoryGui(@NotNull Player player, @NotNull ItemStack[] items,
                                         @NotNull UUID owner, @NotNull LocalDateTime backupTime) {
         String title =
-                Message.INVENTORY_TITLE.replacePlayer(UserList.getName(owner)).replaceDate(backupTime).toString();
+                Message.INVENTORY_TITLE.replacePlayer(UserList.getName(owner)).replaceDate(backupTime).getColorized();
 
         Inventory inv = new DataBackupGui(45, title).getInventory();
         inv.setContents(items);
@@ -33,7 +33,7 @@ public class DataBackupGui implements InventoryHolder {
     public static void openEnderchestGui(@NotNull Player player, @NotNull ItemStack[] items,
                                          @NotNull UUID owner, @NotNull LocalDateTime backupTime) {
         String title =
-                Message.ENDERCHEST_TITLE.replacePlayer(UserList.getName(owner)).replaceDate(backupTime).toString();
+                Message.ENDERCHEST_TITLE.replacePlayer(UserList.getName(owner)).replaceDate(backupTime).getColorized();
 
         Inventory inv = new DataBackupGui(27, title).getInventory();
         inv.setContents(items);

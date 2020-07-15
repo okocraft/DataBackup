@@ -55,7 +55,7 @@ public class RollbackCommand implements Command {
     @Override
     @NotNull
     public String getUsage() {
-        return Message.COMMAND_ROLLBACK_USAGE.getString();
+        return Message.COMMAND_ROLLBACK_USAGE.getColorized();
     }
 
     @Override
@@ -74,7 +74,7 @@ public class RollbackCommand implements Command {
         }
 
         if (args.size() < 4) {
-            Message.COMMAND_ROLLBACK_USAGE.send(sender);
+            sender.sendMessage(getUsage());
             return CommandResult.NO_ARGUMENT;
         }
 

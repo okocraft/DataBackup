@@ -5,7 +5,6 @@ import com.github.siroshun09.command.CommandResult;
 import com.github.siroshun09.command.argument.ArgumentList;
 import com.github.siroshun09.command.bukkit.BukkitCommand;
 import com.github.siroshun09.command.sender.Sender;
-import net.md_5.bungee.api.ChatColor;
 import net.okocraft.databackup.DataBackup;
 import net.okocraft.databackup.Message;
 import net.okocraft.databackup.command.sub.BackupCommand;
@@ -58,7 +57,7 @@ public class DataBackupCommand extends BukkitCommand {
     @Override
     @NotNull
     public String getUsage() {
-        return Message.COMMAND_USAGE.getString();
+        return Message.COMMAND_USAGE.getColorized();
     }
 
     @Override
@@ -85,7 +84,7 @@ public class DataBackupCommand extends BukkitCommand {
         if (cmd.isPresent()) {
             return cmd.get().execute(sender, label, args);
         } else {
-            subCommands.forEach(c -> sender.sendMessage(ChatColor.translateAlternateColorCodes('&', c.getUsage())));
+            subCommands.forEach(c -> sender.sendMessage(c.getUsage()));
             return CommandResult.INVALID_ARGUMENTS;
         }
     }

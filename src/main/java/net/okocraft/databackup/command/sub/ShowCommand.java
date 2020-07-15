@@ -52,7 +52,7 @@ public class ShowCommand implements Command {
     @Override
     @NotNull
     public String getUsage() {
-        return Message.COMMAND_SHOW_USAGE.getString();
+        return Message.COMMAND_SHOW_USAGE.getColorized();
     }
 
     @Override
@@ -78,7 +78,7 @@ public class ShowCommand implements Command {
         }
 
         if (args.size() < 4) {
-            Message.COMMAND_SHOW_USAGE.send(sender);
+            sender.sendMessage(getUsage());
             return CommandResult.NO_ARGUMENT;
         }
 
@@ -137,7 +137,7 @@ public class ShowCommand implements Command {
 
     private CommandResult show(@NotNull Player player, @NotNull ArgumentList args) {
         if (args.size() < 4) {
-            Message.COMMAND_SHOW_USAGE.send(player);
+            player.sendMessage(getUsage());
             return CommandResult.NO_ARGUMENT;
         }
 
