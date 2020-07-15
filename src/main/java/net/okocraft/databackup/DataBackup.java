@@ -7,6 +7,7 @@ import net.okocraft.databackup.hooker.mcmmo.McMMORegister;
 import net.okocraft.databackup.hooker.vault.MoneyData;
 import net.okocraft.databackup.task.BackupTask;
 import net.okocraft.databackup.task.FileCheckTask;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -56,6 +57,8 @@ public final class DataBackup extends JavaPlugin {
         scheduler.shutdownNow();
         getServer().getScheduler().cancelTasks(this);
         scheduler = null;
+
+        HandlerList.unregisterAll(this);
     }
 
     @NotNull

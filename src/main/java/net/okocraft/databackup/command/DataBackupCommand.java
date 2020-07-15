@@ -1,5 +1,6 @@
 package net.okocraft.databackup.command;
 
+import com.github.siroshun09.asynctabcompleter.PaperChecker;
 import com.github.siroshun09.command.Command;
 import com.github.siroshun09.command.CommandResult;
 import com.github.siroshun09.command.argument.ArgumentList;
@@ -33,6 +34,10 @@ public class DataBackupCommand extends BukkitCommand {
                 new RollbackCommand(plugin),
                 new ShowCommand(plugin)
         );
+
+        if (PaperChecker.isPaper()) {
+            plugin.getServer().getPluginManager().registerEvents(new AsyncTabCompletionListener(this), plugin);
+        }
     }
 
     @Override
