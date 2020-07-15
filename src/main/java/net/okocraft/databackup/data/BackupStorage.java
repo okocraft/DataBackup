@@ -32,7 +32,7 @@ public class BackupStorage {
     private final Path playerDir;
 
     public BackupStorage(@NotNull Path dirPath) {
-        this.playerDir = dirPath.resolve("playerdata");
+        this.playerDir = dirPath;
 
         registerDataType(EnderChestData.getName(), EnderChestData::load, EnderChestData::backup);
         registerDataType(ExpData.getName(), ExpData::load, ExpData::backup);
