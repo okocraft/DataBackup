@@ -1,0 +1,31 @@
+prefix: '&8[&6DataBackup&8]&r '
+backup:
+  start: '&7プレイヤーデータのバックアップを開始しています...'
+  finish: '&7バックアップが完了しました。'
+command:
+  usage: '&b/databackup help'
+  backup:
+    usage: '&b/db backup <player|all>&8 - &7プレイヤーのデータをバックアップします'
+    all: '&7全員のデータバックアップを開始しました。コンソールを確認してください。'
+    player: '&b%player% &7のデータをバックアップしました。'
+    failure: '&cバックアップに失敗しました。コンソールを確認してください。'
+  clean:
+    usage: '&b/db clean&8 - &7期限切れのバックアップファイルを削除します。'
+    run: '&7チェックタスクを開始しました。コンソールを確認してください。'
+  rollback:
+    usage: '&b/db rollback <type> <target> <file>&8 - &7指定したファイルに基づきデータを戻します。'
+    sender: '&b%player%&7 の &b%type%&7 のデータを &b%date%&7 時点に戻しました。'
+    target: '&b%type%&7 のデータが &b%date%&7 時点に戻されました。'
+  show:
+    usage: '&b/db show {offline} <type> <target> <file>&8 - &7指定したデータの内訳を表示します。'
+    exp: '&b%date%&7 時点の経験値: &b%amount%'
+    money: '&b%date%&7 時点の所持金: &b%amount%円'
+    mcmmo: '&b%date%&7 時点の &b%skill%&7 の経験値: &b%amount%'
+  no-permission: '&c権限がありません: '
+  only-player: '&cこのコマンドはプレイヤーのみ実行できます。'
+  invalid-data-type: '無効なデータタイプです: %type%'
+  player-not-found: '&cプレイヤー %player% は見つかりませんでした。'
+  backup-not-found: '&c指定したバックアップは存在しません。'
+gui-title:
+  inventory: '&8%player% のインベントリ (%date%)'
+  enderchest: '&8%player% のエンダーチェスト (%date%)'
