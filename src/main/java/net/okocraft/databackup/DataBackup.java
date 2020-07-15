@@ -51,6 +51,11 @@ public final class DataBackup extends JavaPlugin {
     public void onDisable() {
         config = null;
         Message.setMessageConfig(null);
+
+        storage = null;
+        scheduler.shutdownNow();
+        getServer().getScheduler().cancelTasks(this);
+        scheduler = null;
     }
 
     @NotNull
