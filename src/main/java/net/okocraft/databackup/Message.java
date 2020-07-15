@@ -17,7 +17,7 @@ public enum Message {
 
     COMMAND_USAGE("command.usage", "&b/databackup help"),
     COMMAND_BACKUP_USAGE("command.backup.usage", "&b/db backup <player|all>&8 - &7プレイヤーのデータをバックアップします"),
-    COMMAND_BACKUP_ALL("command.backup.all", "&7ログイン中のプレイヤーのデータをバックアップしました。"),
+    COMMAND_BACKUP_ALL("command.backup.all", "&7全員のデータバックアップを開始しました。コンソールを確認してください。"),
     COMMAND_BACKUP_PLAYER("command.backup.player", "&b%player% &7のデータをバックアップしました。"),
     COMMAND_BACKUP_FAILURE("command.backup.failure", "&cバックアップに失敗しました。コンソールを確認してください。"),
     COMMAND_CLEAN_USAGE("command.clean.usage", "&b/db clean&8 - &7期限切れのバックアップファイルを削除します。"),
