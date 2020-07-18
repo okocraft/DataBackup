@@ -43,7 +43,7 @@ public final class DataBackup extends JavaPlugin {
         Optional.ofNullable(getCommand("databackup")).ifPresent(cmd -> new DataBackupCommand(this).register(cmd));
 
         int interval = config.getBackupInterval();
-        scheduler.scheduleAtFixedRate(new BackupTask(this), interval, interval, TimeUnit.HOURS);
+        scheduler.scheduleAtFixedRate(new BackupTask(this), interval, interval, TimeUnit.MINUTES);
 
         scheduler.execute(new FileCheckTask(this));
     }
