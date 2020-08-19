@@ -15,7 +15,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
 
 public class BackupTask implements Runnable {
 
@@ -36,6 +37,7 @@ public class BackupTask implements Runnable {
         boolean broadcast = plugin.getConfiguration().isBroadcastMode();
 
         plugin.getLogger().info("Starting backup...");
+
         if (broadcast) {
             players.stream().filter(OfflinePlayer::isOnline).forEach(Message.BACKUP_START::send);
         }
@@ -50,7 +52,7 @@ public class BackupTask implements Runnable {
 
         long finish = System.currentTimeMillis();
 
-        plugin.getLogger().info("Backup task is complete (" + (finish - start) + "ms)");
+        plugin.getLogger().info("Backup task is completed. (" + (finish - start) + "ms)");
 
         if (broadcast) {
             players.stream().filter(OfflinePlayer::isOnline).forEach(Message.BACKUP_FINISH::send);
@@ -63,14 +65,15 @@ public class BackupTask implements Runnable {
         BukkitYaml yaml = new BukkitYaml(storage.createFilePath(player));
         Set<BackupData> result = new HashSet<>();
 
-        AtomicBoolean done = new AtomicBoolean(false);
-
-        plugin.getServer().getScheduler().runTask(plugin, () -> {
-            getData(result, player);
-            done.set(true);
-        });
-
-        while (!done.get()) ; // CompletableFuture.join() の代わり
+        try {
+            plugin.getServer().getScheduler().callSyncMethod(plugin, () -> getData(result, player)).get();
+        } catch (InterruptedException | ExecutionException e) {
+            plugin.getLogger().log(
+                    Level.SEVERE,
+                    "Failed to back up " + player.getUniqueId().toString() + " (" + player.getName() + ")",
+                    e
+            );
+        }
 
         result.forEach(type -> type.save(yaml));
 
@@ -79,11 +82,12 @@ public class BackupTask implements Runnable {
         if (yaml.save()) {
             plugin.debug(player.getName() + " was successfully backed up.");
         } else {
-            plugin.getLogger().warning(player.getName() + " backup failed.");
+            plugin.getLogger().severe("Failed to save " + player.getName() + "'s data.");
         }
     }
 
-    private void getData(@NotNull Set<BackupData> toCollect, @NotNull Player player) {
+    private Object getData(@NotNull Set<BackupData> toCollect, @NotNull Player player) {
         plugin.getStorage().getDataList().stream().map(type -> type.backup(player)).forEach(toCollect::add);
+        return null;
     }
 }
