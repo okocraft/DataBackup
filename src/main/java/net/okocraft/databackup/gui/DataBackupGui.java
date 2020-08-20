@@ -3,6 +3,7 @@ package net.okocraft.databackup.gui;
 import net.okocraft.databackup.Message;
 import net.okocraft.databackup.user.UserList;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -41,8 +42,9 @@ public class DataBackupGui implements InventoryHolder {
         player.openInventory(inv);
     }
 
-    public static void openSearchResultGui(@NotNull Player player, @NotNull List<ItemStack> items, int page) {
-        String title = Message.SEARCH_RESULT_TITLE.replaceMaterial(items.get(0).getType()).replacePage(page).getColorized();
+    public static void openSearchResultGui(@NotNull Player player,
+                                           @NotNull List<ItemStack> items, @NotNull Material material, int page) {
+        String title = Message.SEARCH_RESULT_TITLE.replaceMaterial(material).replacePage(page).getColorized();
 
         Inventory inv = new DataBackupGui(54, title).getInventory();
         inv.setContents(items.toArray(new ItemStack[0]));
