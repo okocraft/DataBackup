@@ -45,6 +45,10 @@
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
         <repository>
+            <id>bintray-okocraft-maven-repo</id>
+            <url>https://dl.bintray.com/okocraft/maven-repo</url>
+        </repository>
+        <repository>
             <id>bintray-siroplugins-maven-repo</id>
             <url>https://dl.bintray.com/siroplugins/maven-repo</url>
         </repository>
