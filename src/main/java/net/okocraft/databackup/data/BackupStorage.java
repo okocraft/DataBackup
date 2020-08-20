@@ -107,14 +107,14 @@ public class BackupStorage {
             return false;
         }
 
-        if (result.size() / 54 < page) {
+        if ((result.size() / 54) < page - 1) {
             page = 1;
         }
 
         int fromIndex = 54 * (page - 1);
         int endIndex = Math.min(result.size(), 54 * page);
 
-        DataBackupGui.openSearchResultGui(player, result.subList(fromIndex, endIndex), page);
+        DataBackupGui.openSearchResultGui(player, result.subList(fromIndex, endIndex), material, page);
 
         return true;
     }

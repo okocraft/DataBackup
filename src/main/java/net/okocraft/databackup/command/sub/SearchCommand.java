@@ -121,7 +121,7 @@ public class SearchCommand implements Command {
         Material material;
 
         try {
-            material = Material.valueOf(args.get(2));
+            material = Material.valueOf(args.get(2).toUpperCase());
         } catch (IllegalArgumentException e) {
             Message.COMMAND_MATERIAL_NOT_FOUND.send(player);
             return CommandResult.INVALID_ARGUMENTS;
