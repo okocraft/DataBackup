@@ -11,6 +11,7 @@ import net.okocraft.databackup.Message;
 import net.okocraft.databackup.command.sub.BackupCommand;
 import net.okocraft.databackup.command.sub.CleanCommand;
 import net.okocraft.databackup.command.sub.RollbackCommand;
+import net.okocraft.databackup.command.sub.SearchCommand;
 import net.okocraft.databackup.command.sub.ShowCommand;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +33,8 @@ public class DataBackupCommand extends BukkitCommand {
                 new BackupCommand(plugin),
                 new CleanCommand(plugin),
                 new RollbackCommand(plugin),
-                new ShowCommand(plugin)
+                new ShowCommand(plugin),
+                new SearchCommand(plugin)
         );
 
         if (PaperChecker.isPaper()) {
