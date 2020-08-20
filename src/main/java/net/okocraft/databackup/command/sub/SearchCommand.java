@@ -6,8 +6,8 @@ import com.github.siroshun09.command.argument.ArgumentList;
 import com.github.siroshun09.command.sender.Sender;
 import net.okocraft.databackup.DataBackup;
 import net.okocraft.databackup.Message;
-import net.okocraft.databackup.data.DataType;
 import net.okocraft.databackup.user.UserList;
+import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
@@ -21,38 +21,39 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class ShowCommand implements Command {
+public class SearchCommand implements Command {
 
     private final DataBackup plugin;
 
-    public ShowCommand(@NotNull DataBackup plugin) {
+    public SearchCommand(@NotNull DataBackup plugin) {
         this.plugin = plugin;
     }
 
     @Override
     @NotNull
     public String getName() {
-        return "show";
+        return "search";
     }
 
     @Override
     @NotNull
     public String getPermission() {
-        return "databackup.command.show";
+        return "databackup.command.search";
     }
 
     @Override
     @NotNull
     @Unmodifiable
     public Set<String> getAliases() {
-        return Set.of("s");
+        return Collections.emptySet();
     }
 
     @Override
     @NotNull
     public String getUsage() {
-        return Message.COMMAND_SHOW_USAGE.getColorized();
+        return Message.COMMAND_SEARCH_USAGE.getColorized();
     }
 
     @Override
@@ -77,16 +78,12 @@ public class ShowCommand implements Command {
             return CommandResult.NOT_PLAYER;
         }
 
-        if (args.size() < 4) {
+        if (args.size() < 3) {
             sender.sendMessage(getUsage());
             return CommandResult.NO_ARGUMENT;
         }
 
-        if (args.get(1).equalsIgnoreCase("offline")) {
-            return show(player, args.subList(1, args.size()));
-        } else {
-            return show(player, args);
-        }
+        return search(player, args);
     }
 
     @Override
@@ -96,67 +93,46 @@ public class ShowCommand implements Command {
             return Collections.emptyList();
         }
 
-        if (1 < args.size() && args.get(1).equalsIgnoreCase("offline")) {
-            return tabComplete(args.subList(1, args.size()), true);
-        } else {
-            return tabComplete(args, false);
-        }
-    }
-
-    @NotNull
-    private List<String> tabComplete(@NotNull ArgumentList args, boolean offline) {
         if (args.size() == 2) {
-            List<String> result = new LinkedList<>(plugin.getStorage().getDataListAsString());
+            List<String> players =
+                    plugin.getServer().getOnlinePlayers().stream()
+                            .map(HumanEntity::getName)
+                            .collect(Collectors.toList());
 
-            if (!offline) {
-                result.add("offline");
-            }
-
-            return StringUtil.copyPartialMatches(args.get(1), result, new LinkedList<>());
+            return StringUtil.copyPartialMatches(args.get(1), players, new LinkedList<>());
         }
 
         if (args.size() == 3) {
-            List<String> result = List.copyOf(offline ?
-                    UserList.getUsers() :
-                    plugin.getServer().getOnlinePlayers().stream()
-                            .map(HumanEntity::getName)
-                            .collect(Collectors.toList()));
-
-            return StringUtil.copyPartialMatches(args.get(2), result, new LinkedList<>());
-        }
-
-        if (args.size() == 4) {
-            Optional<UUID> uuid = UserList.getUUID(args.get(2));
-            if (uuid.isPresent()) {
-                return StringUtil.copyPartialMatches(args.get(3), plugin.getStorage().getFileListAsString(uuid.get()), new LinkedList<>());
-            }
+            List<String> materials = Stream.of(Material.values()).map(Enum::toString).collect(Collectors.toList());
+            return StringUtil.copyPartialMatches(args.get(2), materials, new LinkedList<>());
         }
 
         return Collections.emptyList();
     }
 
-    private CommandResult show(@NotNull Player player, @NotNull ArgumentList args) {
-        if (args.size() < 4) {
-            player.sendMessage(getUsage());
-            return CommandResult.NO_ARGUMENT;
-        }
-
+    private CommandResult search(@NotNull Player player, @NotNull ArgumentList args) {
         Optional<UUID> target = UserList.getUUID(args.get(2));
+
         if (target.isEmpty()) {
             Message.COMMAND_PLAYER_NOT_FOUND.replacePlayer(args.get(2)).send(player);
             return CommandResult.STATE_ERROR;
         }
 
-        Optional<DataType> dataType = plugin.getStorage().getDataType(args.get(1));
-        if (dataType.isEmpty()) {
-            Message.COMMAND_INVALID_DATA_TYPE.replaceType(args.get(1));
+        Material material;
+
+        try {
+            material = Material.valueOf(args.get(3));
+        } catch (IllegalArgumentException e) {
+            Message.COMMAND_MATERIAL_NOT_FOUND.send(player);
             return CommandResult.INVALID_ARGUMENTS;
         }
 
-        if (plugin.getStorage().show(player, target.get(), dataType.get(), args.get(3))) {
+        int page = Math.max(args.getInt(3), 1);
+
+        if (plugin.getStorage().search(player, target.get(), material, page)) {
             return CommandResult.SUCCESS;
         } else {
-            return CommandResult.INVALID_ARGUMENTS;
+            return CommandResult.STATE_ERROR;
         }
     }
 }

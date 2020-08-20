@@ -140,7 +140,7 @@ public class RollbackCommand implements Command {
             Player target = ((BukkitArgumentList) args).getPlayer(2);
 
             if (target != null) {
-                return StringUtil.copyPartialMatches(args.get(2), plugin.getStorage().getFileList(target.getUniqueId()), new LinkedList<>());
+                return StringUtil.copyPartialMatches(args.get(2), plugin.getStorage().getFileListAsString(target.getUniqueId()), new LinkedList<>());
             }
         }
 

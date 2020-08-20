@@ -5,8 +5,11 @@ import net.okocraft.databackup.Message;
 import net.okocraft.databackup.data.impl.EnderChestData;
 import net.okocraft.databackup.data.impl.ExpData;
 import net.okocraft.databackup.data.impl.InventoryData;
+import net.okocraft.databackup.gui.DataBackupGui;
 import net.okocraft.databackup.util.Formatter;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -14,14 +17,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class BackupStorage {
 
@@ -90,25 +95,68 @@ public class BackupStorage {
         }
     }
 
+    public boolean search(@NotNull Player player, @NotNull UUID owner, @NotNull Material material, int page) {
+        List<ItemStack> result = new LinkedList<>();
+
+        try (Stream<BukkitYaml> yamlStream = getFileList(owner).map(BukkitYaml::new)) {
+            yamlStream.map(yaml -> searchItem(yaml, material)).forEach(result::addAll);
+        }
+
+        if (result.isEmpty()) {
+            Message.COMMAND_SEARCH_NOT_FOUND.send(player);
+            return false;
+        }
+
+        if (result.size() / 54 < page) {
+            page = 1;
+        }
+
+        int fromIndex = 54 * (page - 1);
+        int endIndex = Math.min(result.size(), 54 * page);
+
+        DataBackupGui.openSearchResultGui(player, result.subList(fromIndex, endIndex), page);
+
+        return true;
+    }
+
+    private List<ItemStack> searchItem(@NotNull BukkitYaml yaml, @NotNull Material material) {
+        List<ItemStack> result = new LinkedList<>();
+
+        Arrays.stream(InventoryData.load(yaml).getItems())
+                .filter(i -> i.getType() == material)
+                .forEach(result::add);
+
+        Arrays.stream(EnderChestData.load(yaml).getItems())
+                .filter(i -> i.getType() == material)
+                .forEach(result::add);
+
+        return result;
+    }
+
     @NotNull
-    public List<String> getFileList(@NotNull UUID uuid) {
+    public List<String> getFileListAsString(@NotNull UUID uuid) {
+        return getFileList(uuid)
+                .map(Path::getFileName)
+                .map(Path::toString)
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    @NotNull
+    private Stream<Path> getFileList(@NotNull UUID uuid) {
         Path dir = getPlayerDirectory(uuid);
 
         if (!Files.exists(dir)) {
-            return Collections.emptyList();
+            return Stream.empty();
         }
 
         try {
             return Files.list(dir)
                     .filter(Files::isReadable)
                     .filter(Files::isRegularFile)
-                    .filter(p -> p.toString().endsWith(".yml"))
-                    .map(Path::getFileName)
-                    .map(Path::toString)
-                    .collect(Collectors.toUnmodifiableList());
+                    .filter(p -> p.toString().endsWith(".yml"));
         } catch (IOException e) {
             e.printStackTrace();
-            return Collections.emptyList();
+            return Stream.empty();
         }
     }
 

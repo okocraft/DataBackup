@@ -3,6 +3,7 @@ package net.okocraft.databackup;
 import com.github.siroshun09.command.sender.Sender;
 import com.github.siroshun09.configapi.common.FileConfiguration;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,6 +26,8 @@ public enum Message {
     COMMAND_ROLLBACK_USAGE("command.rollback.usage", "&b/db rollback <type> <target> <file>&8 - &7指定したファイルに基づきデータを戻します。"),
     COMMAND_ROLLBACK_SENDER("command.rollback.sender", "&b%player%&7 の &b%type%&7 のデータを &b%date%&7 時点に戻しました。"),
     COMMAND_ROLLBACK_TARGET("command.rollback.target", "&b%type%&7 のデータが &b%date%&7 時点に戻されました。"),
+    COMMAND_SEARCH_USAGE("command.search.usage", "&b/db search <target> <material> {page} - &7指定したアイテムを検索します。"),
+    COMMAND_SEARCH_NOT_FOUND("command.search.not-found", "&c指定した Material のアイテムは見つかりませんでした。"),
     COMMAND_SHOW_USAGE("command.show.usage", "&b/db show {offline} <type> <target> <file>&8 - &7指定したデータの内訳を表示します。"),
     COMMAND_SHOW_EXP("command.show.exp", "&b%date%&7 時点の経験値: &b%amount%"),
     COMMAND_SHOW_MONEY("command.show.money", "&b%date%&7 時点の所持金: &b%amount%円"),
@@ -35,9 +38,11 @@ public enum Message {
     COMMAND_INVALID_DATA_TYPE("command.invalid-data-type", "無効なデータタイプです: %type%"),
     COMMAND_PLAYER_NOT_FOUND("command.player-not-found", "&cプレイヤー %player% は見つかりませんでした。"),
     COMMAND_BACKUP_NOT_FOUND("command.backup-not-found", "&c指定したバックアップは存在しません。"),
+    COMMAND_MATERIAL_NOT_FOUND("command.material-not-found", "&c指定した Material は存在しません。"),
 
     INVENTORY_TITLE("gui-title.inventory", "&8%player% のインベントリ (%date%)"),
-    ENDERCHEST_TITLE("gui-title.enderchest", "&8%player% のエンダーチェスト (%date%)");
+    ENDERCHEST_TITLE("gui-title.enderchest", "&8%player% のエンダーチェスト (%date%)"),
+    SEARCH_RESULT_TITLE("gui-title.search-result", "&8%material% での検索結果 (%page%ページ目)");
 
     private final static DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_hh-mm-ss");
     private static FileConfiguration MESSAGE_CONFIG;
@@ -127,6 +132,18 @@ public enum Message {
 
     public Message replaceType(@NotNull String type) {
         edited = getEdited().replace("%type%", type);
+
+        return this;
+    }
+
+    public Message replaceMaterial(@NotNull Material material) {
+        edited = getEdited().replace("%material%", material.toString());
+
+        return this;
+    }
+
+    public Message replacePage(int page) {
+        edited = getEdited().replace("%page%", String.valueOf(page));
 
         return this;
     }

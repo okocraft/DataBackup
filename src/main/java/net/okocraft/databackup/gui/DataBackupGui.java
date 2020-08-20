@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public class DataBackupGui implements InventoryHolder {
@@ -37,6 +38,14 @@ public class DataBackupGui implements InventoryHolder {
 
         Inventory inv = new DataBackupGui(27, title).getInventory();
         inv.setContents(items);
+        player.openInventory(inv);
+    }
+
+    public static void openSearchResultGui(@NotNull Player player, @NotNull List<ItemStack> items, int page) {
+        String title = Message.SEARCH_RESULT_TITLE.replaceMaterial(items.get(0).getType()).replacePage(page).getColorized();
+
+        Inventory inv = new DataBackupGui(54, title).getInventory();
+        inv.setContents(items.toArray(new ItemStack[0]));
         player.openInventory(inv);
     }
 

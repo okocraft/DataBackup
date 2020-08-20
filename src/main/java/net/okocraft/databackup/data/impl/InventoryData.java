@@ -60,4 +60,9 @@ public class InventoryData implements BackupData {
     public void show(@NotNull Player player, @NotNull UUID owner, @NotNull LocalDateTime backupTime) {
         DataBackupGui.openInventoryGui(player, items, owner, backupTime);
     }
+
+    @NotNull
+    public ItemStack[] getItems() {
+        return items;
+    }
 }

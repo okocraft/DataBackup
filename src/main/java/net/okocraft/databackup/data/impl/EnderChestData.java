@@ -60,4 +60,9 @@ public class EnderChestData implements BackupData {
     public void show(@NotNull Player player, @NotNull UUID owner, @NotNull LocalDateTime backupTime) {
         DataBackupGui.openEnderchestGui(player, items, owner, backupTime);
     }
+
+    @NotNull
+    public ItemStack[] getItems() {
+        return items;
+    }
 }
