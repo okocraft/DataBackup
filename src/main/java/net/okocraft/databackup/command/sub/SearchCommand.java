@@ -111,17 +111,17 @@ public class SearchCommand implements Command {
     }
 
     private CommandResult search(@NotNull Player player, @NotNull ArgumentList args) {
-        Optional<UUID> target = UserList.getUUID(args.get(2));
+        Optional<UUID> target = UserList.getUUID(args.get(1));
 
         if (target.isEmpty()) {
-            Message.COMMAND_PLAYER_NOT_FOUND.replacePlayer(args.get(2)).send(player);
+            Message.COMMAND_PLAYER_NOT_FOUND.replacePlayer(args.get(1)).send(player);
             return CommandResult.STATE_ERROR;
         }
 
         Material material;
 
         try {
-            material = Material.valueOf(args.get(3));
+            material = Material.valueOf(args.get(2));
         } catch (IllegalArgumentException e) {
             Message.COMMAND_MATERIAL_NOT_FOUND.send(player);
             return CommandResult.INVALID_ARGUMENTS;
