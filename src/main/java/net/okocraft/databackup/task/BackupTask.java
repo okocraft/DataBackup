@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 public class BackupTask implements Runnable {
@@ -65,14 +65,24 @@ public class BackupTask implements Runnable {
         BukkitYaml yaml = new BukkitYaml(storage.createFilePath(player));
         Set<BackupData> result = new HashSet<>();
 
-        try {
-            plugin.getServer().getScheduler().callSyncMethod(plugin, () -> getData(result, player)).get();
-        } catch (InterruptedException | ExecutionException e) {
-            plugin.getLogger().log(
-                    Level.SEVERE,
-                    "Failed to back up " + player.getUniqueId().toString() + " (" + player.getName() + ")",
-                    e
-            );
+        AtomicBoolean b = new AtomicBoolean(false);
+
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            getData(result, player);
+
+            synchronized (b) {
+                b.notify();
+            }
+        });
+
+        if (!b.get()) {
+            try {
+                synchronized (b) {
+                    b.wait();
+                }
+            } catch (InterruptedException e) {
+                plugin.getLogger().log(Level.SEVERE, "Could not get player data: " + player.getName(), e);
+            }
         }
 
         result.forEach(type -> type.save(yaml));
@@ -86,8 +96,7 @@ public class BackupTask implements Runnable {
         }
     }
 
-    private Object getData(@NotNull Set<BackupData> toCollect, @NotNull Player player) {
+    private void getData(@NotNull Set<BackupData> toCollect, @NotNull Player player) {
         plugin.getStorage().getDataList().stream().map(type -> type.backup(player)).forEach(toCollect::add);
-        return null;
     }
 }
