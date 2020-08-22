@@ -38,14 +38,15 @@ public final class DataBackup extends JavaPlugin {
         storage = new BackupStorage(config.getDestinationDir());
         scheduler = Executors.newSingleThreadScheduledExecutor();
 
-        hook();
-
         Optional.ofNullable(getCommand("databackup")).ifPresent(cmd -> new DataBackupCommand(this).register(cmd));
 
         int interval = config.getBackupInterval();
         scheduler.scheduleAtFixedRate(new BackupTask(this), interval, interval, TimeUnit.MINUTES);
 
         scheduler.execute(new FileCheckTask(this));
+
+        getServer().getScheduler().runTask(this, this::hook);
+
         getLogger().info("DataBackup v" + getDescription().getVersion() + " has been enabled!");
     }
 
