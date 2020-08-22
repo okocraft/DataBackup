@@ -46,6 +46,7 @@ public final class DataBackup extends JavaPlugin {
         scheduler.scheduleAtFixedRate(new BackupTask(this), interval, interval, TimeUnit.MINUTES);
 
         scheduler.execute(new FileCheckTask(this));
+        getLogger().info("DataBackup v" + getDescription().getVersion() + " has been enabled!");
     }
 
     @Override
@@ -59,6 +60,7 @@ public final class DataBackup extends JavaPlugin {
         scheduler = null;
 
         HandlerList.unregisterAll(this);
+        getLogger().info("DataBackup v" + getDescription().getVersion() + " has been disabled!");
     }
 
     @NotNull
