@@ -7,6 +7,7 @@ import net.okocraft.databackup.hooker.mcmmo.McMMORegister;
 import net.okocraft.databackup.hooker.vault.MoneyData;
 import net.okocraft.databackup.task.BackupTask;
 import net.okocraft.databackup.task.FileCheckTask;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +39,7 @@ public final class DataBackup extends JavaPlugin {
         storage = new BackupStorage(config.getDestinationDir());
         scheduler = Executors.newSingleThreadScheduledExecutor();
 
-        Optional.ofNullable(getCommand("databackup")).ifPresent(cmd -> new DataBackupCommand(this).register(cmd));
+        Optional.ofNullable(getCommand("databackup")).ifPresent(this::registerCommand);
 
         int interval = config.getBackupInterval();
         scheduler.scheduleAtFixedRate(new BackupTask(this), interval, interval, TimeUnit.MINUTES);
@@ -83,6 +84,10 @@ public final class DataBackup extends JavaPlugin {
         if (config.isDebugMode()) {
             getLogger().info("Debug: " + log);
         }
+    }
+
+    private void registerCommand(@NotNull PluginCommand command) {
+        new DataBackupCommand(this).register(command);
     }
 
     private void hook() {
