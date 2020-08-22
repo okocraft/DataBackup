@@ -1,3 +1,7 @@
-interval: 30 # バックアップ間隔
-period: 5 # 保存期間
+backup:
+  destination-directory: "./plugins/DataBackup/backups"
+  interval: 30
+  period: 5
+  broadcast: true
+
 debug: false

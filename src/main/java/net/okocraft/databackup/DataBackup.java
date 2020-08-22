@@ -1,77 +1,108 @@
 package net.okocraft.databackup;
 
-import com.github.siroshun09.sirolibrary.SiroExecutors;
-import com.github.siroshun09.sirolibrary.bukkitutils.BukkitUtil;
-import com.github.siroshun09.sirolibrary.message.BukkitMessage;
-import net.okocraft.databackup.listeners.CommandListener;
-import net.okocraft.databackup.listeners.PlayerListener;
-import net.okocraft.databackup.tasks.BackupCheckingTask;
-import net.okocraft.databackup.tasks.PlayerBackupTask;
-import org.bukkit.Bukkit;
+import com.github.siroshun09.configapi.bukkit.BukkitConfig;
+import net.okocraft.databackup.command.DataBackupCommand;
+import net.okocraft.databackup.data.BackupStorage;
+import net.okocraft.databackup.hooker.mcmmo.McMMORegister;
+import net.okocraft.databackup.hooker.vault.MoneyData;
+import net.okocraft.databackup.task.BackupTask;
+import net.okocraft.databackup.task.FileCheckTask;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class DataBackup extends JavaPlugin {
-    private static DataBackup INSTANCE;
+public final class DataBackup extends JavaPlugin {
 
-    private final ScheduledExecutorService executor = SiroExecutors.newSingleScheduler("DataBackup-Thread");
+    private BackupStorage storage;
+    private Configuration config;
+    private ScheduledExecutorService scheduler;
 
-    public DataBackup() {
-        if (INSTANCE == null) {
-            INSTANCE = this;
-        }
-    }
+    @Override
+    public void onLoad() {
+        config = new Configuration(this);
+        debug("config.yml loaded.");
 
-    public static DataBackup get() {
-        return INSTANCE;
+        Message.setMessageConfig(new BukkitConfig(this, "message.yml", true));
+        debug("message.yml loaded.");
+
+        getLogger().info("DataBackup v" + getDescription().getVersion() + " has been loaded!");
     }
 
     @Override
     public void onEnable() {
-        super.onEnable();
+        storage = new BackupStorage(config.getDestinationDir());
+        scheduler = Executors.newSingleThreadScheduledExecutor();
 
-        Configuration.init();
-        Messages.init();
+        Optional.ofNullable(getCommand("databackup")).ifPresent(this::registerCommand);
 
-        executor.submit(new BackupCheckingTask());
-        debug("Submitted the checking backup file task.");
+        int interval = config.getBackupInterval();
+        scheduler.scheduleAtFixedRate(new BackupTask(this), interval, interval, TimeUnit.MINUTES);
 
-        BukkitUtil.registerEvents(PlayerListener.get(), this);
-        BukkitUtil.setCommandExecutor(getCommand("databackup"), CommandListener.get());
-        debug("Registered the command \"/databackup\" (/db) and listeners.");
+        scheduler.execute(new FileCheckTask(this));
 
-        UserList.get().update();
+        getServer().getScheduler().runTask(this, this::hook);
 
-        executor.schedule(new PlayerBackupTask(), Configuration.get().getBackupInterval(), TimeUnit.MINUTES);
-        debug("Scheduled the backup task.");
-
-        BukkitMessage.printEnabledMsg(this);
+        getLogger().info("DataBackup v" + getDescription().getVersion() + " has been enabled!");
     }
 
     @Override
     public void onDisable() {
-        super.onDisable();
-        BukkitUtil.unregisterEvents(this);
-        debug("Unregistered the listener.");
+        config = null;
+        Message.setMessageConfig(null);
 
-        Bukkit.getScheduler().cancelTasks(this);
-        executor.shutdownNow();
-        debug("Cancelled the backup task.");
+        storage = null;
+        scheduler.shutdownNow();
+        getServer().getScheduler().cancelTasks(this);
+        scheduler = null;
 
-        BukkitMessage.printDisabledMsg(this);
+        HandlerList.unregisterAll(this);
+        getLogger().info("DataBackup v" + getDescription().getVersion() + " has been disabled!");
     }
 
     @NotNull
-    public ScheduledExecutorService getExecutor() {
-        return executor;
+    public Configuration getConfiguration() {
+        return config;
+    }
+
+    @NotNull
+    public BackupStorage getStorage() {
+        return storage;
+    }
+
+    @NotNull
+    public ScheduledExecutorService getScheduler() {
+        return scheduler;
     }
 
     public void debug(@NotNull String log) {
-        if (Configuration.get().isDebugMode()) {
-            getLogger().info("DEBUG | " + log);
+        if (config.isDebugMode()) {
+            getLogger().info("Debug: " + log);
         }
+    }
+
+    private void registerCommand(@NotNull PluginCommand command) {
+        new DataBackupCommand(this).register(command);
+    }
+
+    private void hook() {
+        if (isLoaded("Vault")) {
+            storage.registerDataType(MoneyData.getName(), MoneyData::load, MoneyData::backup);
+            getLogger().info("Economy data is now backed up!");
+        }
+
+        if (isLoaded("mcMMO")) {
+            McMMORegister.register(storage);
+            getLogger().info("mcMMO is now backed up!");
+        }
+    }
+
+    private boolean isLoaded(@NotNull String name) {
+        return getServer().getPluginManager().getPlugin(name) != null;
     }
 }
