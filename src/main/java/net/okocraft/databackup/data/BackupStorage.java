@@ -175,7 +175,12 @@ public class BackupStorage {
 
     @NotNull
     public Path createFilePath(@NotNull Player player, @NotNull String fileName) {
-        return getPlayerDirectory(player.getUniqueId()).resolve(fileName);
+        return createFilePath(player.getUniqueId(), fileName);
+    }
+
+    @NotNull
+    public Path createFilePath(@NotNull UUID uuid, @NotNull String fileName) {
+        return getPlayerDirectory(uuid).resolve(fileName);
     }
 
     @NotNull

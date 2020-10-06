@@ -1,7 +1,7 @@
 package net.okocraft.databackup;
 
-import com.github.siroshun09.command.sender.Sender;
 import com.github.siroshun09.configapi.common.FileConfiguration;
+import com.github.siroshun09.mccommand.common.sender.Sender;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
