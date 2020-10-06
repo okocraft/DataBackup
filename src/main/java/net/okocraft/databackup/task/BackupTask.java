@@ -20,6 +20,8 @@ import java.util.logging.Level;
 
 public class BackupTask implements Runnable {
 
+    private static final long MILLI_SECONDS_TO_WAIT = 1000;
+
     private final DataBackup plugin;
 
     public BackupTask(@NotNull DataBackup plugin) {
@@ -78,7 +80,7 @@ public class BackupTask implements Runnable {
         if (!b.get()) {
             try {
                 synchronized (b) {
-                    b.wait();
+                    b.wait(MILLI_SECONDS_TO_WAIT);
                 }
             } catch (InterruptedException e) {
                 plugin.getLogger().log(Level.SEVERE, "Could not get player data: " + player.getName(), e);
