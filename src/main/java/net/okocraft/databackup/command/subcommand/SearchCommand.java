@@ -105,9 +105,9 @@ public class SearchCommand extends AbstractCommand {
 
     private CommandResult search(@NotNull Player player, @NotNull List<Argument> args) {
         Argument secondArgument = args.get(1);
-        Optional<UUID> target = UserList.getUUID(secondArgument.get());
+        UUID target = UserList.PARSER.parse(secondArgument);
 
-        if (target.isEmpty()) {
+        if (target == null) {
             Message.COMMAND_PLAYER_NOT_FOUND.replacePlayer(secondArgument.get()).send(player);
             return CommandResult.STATE_ERROR;
         }
@@ -122,7 +122,7 @@ public class SearchCommand extends AbstractCommand {
         int fourthValue = BasicParser.INTEGER.parseOrDefault(args.get(3), 1);
         int page = Math.max(fourthValue, 1);
 
-        if (plugin.getStorage().search(player, target.get(), material, page)) {
+        if (plugin.getStorage().search(player, target, material, page)) {
             return CommandResult.SUCCESS;
         } else {
             return CommandResult.STATE_ERROR;

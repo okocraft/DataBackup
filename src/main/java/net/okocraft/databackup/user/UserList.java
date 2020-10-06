@@ -1,5 +1,6 @@
 package net.okocraft.databackup.user;
 
+import com.github.siroshun09.mccommand.common.argument.parser.ArgumentParser;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -9,7 +10,6 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -17,23 +17,16 @@ import java.util.stream.Collectors;
 public final class UserList {
 
     @SuppressWarnings("deprecation")
-    @NotNull
-    public static Optional<UUID> getUUID(@NotNull String name) {
-        Optional<UUID> uuid;
-
+    public static final ArgumentParser<UUID> PARSER = argument -> {
+        UUID uuid;
         if (isUserAPIEnabled()) {
-            uuid = UserAPIHooker.getUUID(name);
+            uuid = UserAPIHooker.getUUID(argument.get());
         } else {
-            uuid = Optional.empty();
+            uuid = null;
         }
 
-        if (uuid.isPresent()) {
-            return uuid;
-        } else {
-
-            return Optional.of(Bukkit.getOfflinePlayer(name).getUniqueId());
-        }
-    }
+        return Objects.requireNonNullElseGet(uuid, () -> Bukkit.getOfflinePlayer(argument.get()).getUniqueId());
+    };
 
     @NotNull
     public static String getName(@NotNull UUID uuid) {

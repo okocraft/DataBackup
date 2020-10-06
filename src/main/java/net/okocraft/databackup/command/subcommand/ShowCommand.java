@@ -78,15 +78,15 @@ public class ShowCommand extends AbstractCommand {
         }
 
         Argument thirdArgument = args.get(2);
-        Optional<UUID> target = UserList.getUUID(thirdArgument.get());
+        UUID target = UserList.PARSER.parse(thirdArgument);
 
-        if (target.isEmpty()) {
+        if (target == null) {
             Message.COMMAND_PLAYER_NOT_FOUND.replacePlayer(thirdArgument.get()).send(player);
             return CommandResult.STATE_ERROR;
         }
 
         Argument fourthArgument = args.get(3);
-        Path filePath = plugin.getStorage().createFilePath(target.get(), fourthArgument.get());
+        Path filePath = plugin.getStorage().createFilePath(target, fourthArgument.get());
 
         if (!Files.exists(filePath)) {
             Message.COMMAND_BACKUP_NOT_FOUND.send(player);
@@ -96,7 +96,7 @@ public class ShowCommand extends AbstractCommand {
         BukkitYaml yaml = new BukkitYaml(filePath);
         LocalDateTime dateTime = plugin.getStorage().getDateTime(yaml);
 
-        type.get().load(yaml).show(player, target.get(), dateTime);
+        type.get().load(yaml).show(player, target, dateTime);
 
         return CommandResult.SUCCESS;
     }
@@ -141,14 +141,14 @@ public class ShowCommand extends AbstractCommand {
 
         if (args.size() == 4) {
             Argument thirdArgument = args.get(2);
-            Optional<UUID> uuid = UserList.getUUID(thirdArgument.get());
+            UUID uuid = UserList.PARSER.parse(thirdArgument);
 
-            if (uuid.isPresent()) {
+            if (uuid != null) {
                 Argument fourthArgument = args.get(3);
 
                 return StringUtil.copyPartialMatches(
                         fourthArgument.get(),
-                        plugin.getStorage().getFileListAsString(uuid.get()),
+                        plugin.getStorage().getFileListAsString(uuid),
                         new ArrayList<>()
                 );
             }

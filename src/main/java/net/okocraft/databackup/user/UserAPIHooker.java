@@ -3,6 +3,7 @@ package net.okocraft.databackup.user;
 import net.okocraft.userapi.api.UserAPI;
 import net.okocraft.userapi.api.data.UserData;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.util.Collections;
@@ -12,18 +13,18 @@ import java.util.UUID;
 
 final class UserAPIHooker {
 
-    @NotNull
-    static Optional<UUID> getUUID(@NotNull String name) {
+    @Nullable
+    static UUID getUUID(@NotNull String name) {
         try {
             Optional<UserData> data = UserAPI.getUserDataByName(name);
             if (data.isPresent()) {
-                return Optional.of(data.get().getUuid());
+                return data.get().getUuid();
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return Optional.empty();
+        return null;
     }
 
     @NotNull
