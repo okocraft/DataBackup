@@ -129,12 +129,15 @@ public class ShowCommand extends AbstractCommand {
 
         if (args.size() == 3) {
             Argument thirdArgument = args.get(2);
+            List<String> result = offline ?
+                    List.copyOf(UserList.getUsers()) :
+                    plugin.getServer().getOnlinePlayers().stream()
+                            .map(HumanEntity::getName)
+                            .collect(Collectors.toUnmodifiableList());
 
             return StringUtil.copyPartialMatches(
                     thirdArgument.get(),
-                    plugin.getServer().getOnlinePlayers().stream()
-                            .map(HumanEntity::getName)
-                            .collect(Collectors.toUnmodifiableList()),
+                    result,
                     new ArrayList<>()
             );
         }
