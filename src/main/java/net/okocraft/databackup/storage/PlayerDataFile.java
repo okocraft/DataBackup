@@ -28,11 +28,16 @@ public class PlayerDataFile {
 
     private Player playerCache;
     private long backupTime;
+    private boolean loaded;
 
     PlayerDataFile(@NotNull UUID owner, @NotNull BukkitYaml yaml, long backupTime) {
         this.owner = owner;
         this.yaml = yaml;
         this.backupTime = backupTime;
+    }
+
+    public boolean isLoaded() {
+        return loaded;
     }
 
     public void backup(@NotNull Collection<DataType<?>> dataTypes) {
@@ -43,18 +48,19 @@ public class PlayerDataFile {
             dataMap.put(dataType, data);
         }
 
+        loaded = true;
         backupTime = Instant.now().toEpochMilli();
     }
 
     public void rollback(@NotNull DataType dataType) {
         var player = getPlayerOrThrow();
 
-        var data = dataType.load().apply(yaml);
+        var data = getDataOrLoad(dataType);
         dataType.rollback().accept(data, player);
     }
 
     public void show(@NotNull DataType dataType, @NotNull BukkitSender viewer) {
-        var data = dataType.load().apply(yaml);
+        var data = getDataOrLoad(dataType);
         dataType.show().accept(data, viewer);
     }
 
@@ -63,13 +69,16 @@ public class PlayerDataFile {
             var data = (BackupData) dataType.load().apply(yaml);
             dataMap.put(dataType, data);
         }
-
+        loaded = true;
     }
 
     public void save() throws IOException {
         for (DataType dataType : dataMap.keySet()) {
             var data = dataMap.get(dataType);
-            dataType.save().accept(data, yaml);
+
+            if (data != null) {
+                dataType.save().accept(data, yaml);
+            }
         }
 
         yaml.setValue(BackupTimeValue.INSTANCE, backupTime);
@@ -111,5 +120,16 @@ public class PlayerDataFile {
         }
 
         return playerCache;
+    }
+
+    private @NotNull BackupData<?> getDataOrLoad(@NotNull DataType<?> dataType) {
+        var data = dataMap.get(dataType);
+
+        if (data == null) {
+            data = dataType.load().apply(yaml);
+            dataMap.put(dataType, data);
+        }
+
+        return data;
     }
 }

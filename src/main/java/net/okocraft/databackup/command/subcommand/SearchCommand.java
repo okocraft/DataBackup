@@ -134,9 +134,12 @@ public class SearchCommand extends AbstractCommand {
         List<ItemStack> result = new ArrayList<>();
 
         try {
+            var start = System.currentTimeMillis();
             var dataTypes = plugin.getDataTypeRegistry().getRegisteredDataType();
             for (PlayerDataFile dataFile : Files.list(directory).map(storage::loadPlayerDataFile).collect(Collectors.toList())) {
-                dataFile.loadAll(dataTypes);
+                if (!dataFile.isLoaded()) {
+                    dataFile.loadAll(dataTypes);
+                }
 
                 for (BackupData<?> data : dataFile.getDataMap().values()) {
                     if (data instanceof ItemSearchable) {
@@ -144,6 +147,8 @@ public class SearchCommand extends AbstractCommand {
                     }
                 }
             }
+            var end = System.currentTimeMillis();
+            plugin.getLogger().info((end - start) + "ms");
         } catch (Throwable e) {
             MessageProvider.sendMessageWithPrefix(DefaultMessage.COMMAND_SEARCH_FAILURE, sender);
             return CommandResult.EXCEPTION_OCCURRED;
