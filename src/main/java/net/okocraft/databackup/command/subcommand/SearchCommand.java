@@ -59,7 +59,7 @@ public class SearchCommand extends AbstractCommand {
 
         List<Argument> args = context.getArguments();
 
-        if (args.size() < 4) {
+        if (args.size() < 3) {
             MessageProvider.sendMessageWithPrefix(DefaultMessage.COMMAND_SEARCH_USAGE, sender);
             return CommandResult.INVALID_ARGUMENTS;
         }
@@ -154,8 +154,14 @@ public class SearchCommand extends AbstractCommand {
             return CommandResult.STATE_ERROR;
         }
 
-        int fourthValue = BasicParser.INTEGER.parseOrDefault(args.get(3), 1);
-        int page = Math.max(fourthValue, 1);
+        int page;
+
+        if (args.size() < 4) {
+            page = 1;
+        } else {
+            int fourthValue = BasicParser.INTEGER.parseOrDefault(args.get(3), 1);
+            page = Math.max(fourthValue, 1);
+        }
 
         if ((result.size() / 54) < page - 1) {
             page = 1;
