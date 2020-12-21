@@ -1,17 +1,26 @@
 package net.okocraft.databackup.data;
 
-import com.github.siroshun09.configapi.bukkit.BukkitYaml;
-import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
-public interface BackupData {
+public interface BackupData<T> {
 
-    void save(@NotNull BukkitYaml yaml);
+    @Contract("_, _ -> new")
+    static @NotNull <T> BackupData<T> create(@NotNull UUID owner, @NotNull T data) {
+        return create(owner, Instant.now().toEpochMilli(), data);
+    }
 
-    void rollback(@NotNull Player player);
+    @Contract(value = "_, _, _ -> new", pure = true)
+    static @NotNull <T> BackupData<T> create(@NotNull UUID owner, long backupTime, @NotNull T data) {
+        return new BackupDataImpl<>(owner, backupTime, data);
+    }
 
-    void show(@NotNull Player player, @NotNull UUID owner, @NotNull LocalDateTime backupTime);
+    @NotNull UUID getOwner();
+
+    long getBackupTime();
+
+    @NotNull T get();
 }

@@ -1,127 +1,117 @@
 package net.okocraft.databackup.command;
 
-import com.github.siroshun09.asynctabcompleter.PaperChecker;
-import com.github.siroshun09.command.Command;
-import com.github.siroshun09.command.CommandResult;
-import com.github.siroshun09.command.argument.ArgumentList;
-import com.github.siroshun09.command.bukkit.BukkitCommand;
-import com.github.siroshun09.command.sender.Sender;
+import com.github.siroshun09.mccommand.bukkit.BukkitCommandFactory;
+import com.github.siroshun09.mccommand.bukkit.paper.AsyncTabCompleteListener;
+import com.github.siroshun09.mccommand.bukkit.paper.PaperChecker;
+import com.github.siroshun09.mccommand.common.AbstractCommand;
+import com.github.siroshun09.mccommand.common.Command;
+import com.github.siroshun09.mccommand.common.CommandResult;
+import com.github.siroshun09.mccommand.common.SubCommandHolder;
+import com.github.siroshun09.mccommand.common.argument.Argument;
+import com.github.siroshun09.mccommand.common.context.CommandContext;
+import com.github.siroshun09.mccommand.common.sender.Sender;
+import com.github.siroshun09.mcmessage.MessageReceiver;
 import net.okocraft.databackup.DataBackup;
-import net.okocraft.databackup.Message;
-import net.okocraft.databackup.command.sub.BackupCommand;
-import net.okocraft.databackup.command.sub.CleanCommand;
-import net.okocraft.databackup.command.sub.RollbackCommand;
-import net.okocraft.databackup.command.sub.SearchCommand;
-import net.okocraft.databackup.command.sub.ShowCommand;
+import net.okocraft.databackup.command.subcommand.BackupCommand;
+import net.okocraft.databackup.command.subcommand.CleanCommand;
+import net.okocraft.databackup.command.subcommand.RollbackCommand;
+import net.okocraft.databackup.command.subcommand.SearchCommand;
+import net.okocraft.databackup.command.subcommand.ShowCommand;
+import net.okocraft.databackup.lang.DefaultMessage;
+import net.okocraft.databackup.lang.MessageProvider;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class DataBackupCommand extends BukkitCommand {
+public class DataBackupCommand extends AbstractCommand {
 
-    private final Set<Command> subCommands;
+    private final SubCommandHolder subCommandHolder;
 
     public DataBackupCommand(@NotNull DataBackup plugin) {
-        subCommands = Set.of(
+        super("databackup", "databackup.command", Set.of("dbackup", "db"));
+
+        subCommandHolder = SubCommandHolder.of(
                 new BackupCommand(plugin),
                 new CleanCommand(plugin),
                 new RollbackCommand(plugin),
-                new ShowCommand(plugin),
-                new SearchCommand(plugin)
+                new SearchCommand(plugin),
+                new ShowCommand(plugin)
         );
-
-        if (PaperChecker.isPaper()) {
-            plugin.getServer().getPluginManager().registerEvents(new AsyncTabCompletionListener(this), plugin);
-        }
     }
 
     @Override
-    @NotNull
-    public String getName() {
-        return "databackup";
-    }
+    public @NotNull CommandResult onExecution(@NotNull CommandContext context) {
+        Sender sender = context.getSender();
 
-    @Override
-    @NotNull
-    public String getPermission() {
-        return "databackup.command";
-    }
-
-    @Override
-    @NotNull
-    @Unmodifiable
-    public Set<String> getAliases() {
-        return Set.of("dbackup", "db");
-    }
-
-    @Override
-    @NotNull
-    public String getUsage() {
-        return Message.COMMAND_USAGE.getColorized();
-    }
-
-    @Override
-    @NotNull
-    @Unmodifiable
-    public Set<Command> getSubCommands() {
-        return subCommands;
-    }
-
-    @Override
-    @NotNull
-    public CommandResult execute(@NotNull Sender sender, @NotNull String label, @NotNull ArgumentList args) {
         if (!sender.hasPermission(getPermission())) {
-            Message.COMMAND_NO_PERMISSION.replacePermission(getPermission()).send(sender);
+            MessageProvider.sendNoPermission(sender, getPermission());
             return CommandResult.NO_PERMISSION;
         }
 
-        if (args.size() < 1) {
-            Message.COMMAND_USAGE.send(sender);
+        if (context.getArguments().isEmpty()) {
+            sendUsage(sender);
             return CommandResult.NO_ARGUMENT;
         }
 
-        Optional<Command> cmd = getCommand(args.get(0));
-        if (cmd.isPresent()) {
-            return cmd.get().execute(sender, label, args);
+        Argument firstArgument = context.getArguments().get(0);
+        Optional<Command> subCommand = subCommandHolder.searchOptional(firstArgument);
+
+        if (subCommand.isPresent()) {
+            return subCommand.get().onExecution(context);
         } else {
-            subCommands.forEach(c -> sender.sendMessage(c.getUsage()));
+            sendUsage(sender);
             return CommandResult.INVALID_ARGUMENTS;
         }
     }
 
     @Override
-    @NotNull
-    public List<String> tabComplete(@NotNull Sender sender, @NotNull String label, @NotNull ArgumentList args) {
-        if (!sender.hasPermission(getPermission())) {
+    public @NotNull List<String> onTabCompletion(@NotNull CommandContext context) {
+        List<Argument> args = context.getArguments();
+
+        if (args.isEmpty() || !context.getSender().hasPermission(getPermission())) {
             return Collections.emptyList();
         }
 
+        Argument firstArgument = context.getArguments().get(0);
+
         if (args.size() == 1) {
             return StringUtil.copyPartialMatches(
-                    args.get(0),
-                    subCommands.stream().map(Command::getName).collect(Collectors.toList()),
-                    new LinkedList<>());
+                    firstArgument.get(),
+                    subCommandHolder.getSubCommands().stream().map(Command::getName).collect(Collectors.toList()),
+                    new ArrayList<>());
+        } else {
+            return subCommandHolder
+                    .searchOptional(firstArgument)
+                    .map(cmd -> cmd.onTabCompletion(context))
+                    .orElse(Collections.emptyList());
         }
-
-        Optional<Command> cmd = getCommand(args.get(0));
-        return cmd.map(c -> c.tabComplete(sender, label, args)).orElse(Collections.emptyList());
     }
 
-    private Optional<Command> getCommand(@NotNull String str) {
-        Optional<Command> cmd = subCommands.stream().filter(c -> c.getName().equalsIgnoreCase(str)).findFirst();
-        if (cmd.isPresent()) {
-            return cmd;
-        }
+    public void register(@NotNull PluginCommand command) {
+        BukkitCommandFactory.register(command, this);
 
-        return subCommands.stream()
-                .filter(c -> c.getAliases().stream().anyMatch(a -> a.equalsIgnoreCase(str)))
-                .findFirst();
+        if (PaperChecker.check()) {
+            AsyncTabCompleteListener.register(command.getPlugin(), this);
+        }
+    }
+
+    private void sendUsage(@NotNull MessageReceiver receiver) {
+        send(DefaultMessage.COMMAND_USAGE, receiver);
+        send(DefaultMessage.COMMAND_BACKUP_USAGE, receiver);
+        send(DefaultMessage.COMMAND_CLEAN_USAGE, receiver);
+        send(DefaultMessage.COMMAND_ROLLBACK_USAGE, receiver);
+        send(DefaultMessage.COMMAND_SEARCH_USAGE, receiver);
+        send(DefaultMessage.COMMAND_SHOW_USAGE, receiver);
+    }
+
+    private void send(@NotNull DefaultMessage defaultMessage, @NotNull MessageReceiver receiver) {
+        MessageProvider.sendMessageWithPrefix(defaultMessage, receiver);
     }
 }

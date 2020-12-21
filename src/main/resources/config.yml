@@ -1,7 +1,5 @@
 backup:
-  destination-directory: "./plugins/DataBackup/backups"
+  destination-directory: ""
   interval: 30
   period: 5
   broadcast: true
-
-debug: false
