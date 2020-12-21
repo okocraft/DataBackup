@@ -20,8 +20,8 @@ public final class Placeholders {
     public static final Placeholder PERMISSION = Placeholder.create("%permission%");
     public static final FunctionalPlaceholder<Argument> PLAYER_NAME = create("%player%", Argument::get);
     public static final FunctionalPlaceholder<Player> PLAYER = create("%player%", HumanEntity::getName);
-    public static final FunctionalPlaceholder<Argument> DATA_TYPE_NAME = create("%datatype%", Argument::get);
-    public static final FunctionalPlaceholder<DataType<?>> DATA_TYPE = create("%datatype%", DataType::getName);
+    public static final FunctionalPlaceholder<Argument> DATA_TYPE_NAME = create("%type%", Argument::get);
+    public static final FunctionalPlaceholder<DataType<?>> DATA_TYPE = create("%type%", DataType::getName);
     public static final FunctionalPlaceholder<Material> MATERIAL = create("%material%", Enum::name);
     public static final FunctionalPlaceholder<Integer> PAGE = create("%page%", String::valueOf);
     public static final FunctionalPlaceholder<LocalDateTime> DATE = create("%date%", FORMATTER::format);
