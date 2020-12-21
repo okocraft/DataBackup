@@ -1,6 +1,8 @@
 package net.okocraft.databackup.storage;
 
 import com.github.siroshun09.configapi.bukkit.BukkitYamlFactory;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import net.okocraft.databackup.data.impl.BackupTimeValue;
 import net.okocraft.databackup.data.impl.UUIDValue;
 import org.bukkit.OfflinePlayer;
@@ -11,11 +13,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class Storage {
 
     private final Path rootDir;
+    private final Cache<Path, PlayerDataFile> cache =
+            CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build();
 
     public Storage(@NotNull Path rootDir) {
         this.rootDir = rootDir;
@@ -29,6 +34,10 @@ public class Storage {
         } else {
             Files.createDirectories(rootDir);
         }
+    }
+
+    public void clearCache() {
+        cache.invalidateAll();
     }
 
     public Path getRootDirectory() {
@@ -49,10 +58,20 @@ public class Storage {
 
     public @NotNull PlayerDataFile createPlayerDataFile(@NotNull UUID owner) {
         var filePath = getPlayerDirectory(owner).resolve(Instant.now().toEpochMilli() + ".yml");
-        return new PlayerDataFile(owner, BukkitYamlFactory.loadUnsafe(filePath), 0);
+        var dataFile  = new PlayerDataFile(owner, BukkitYamlFactory.loadUnsafe(filePath), 0);
+
+        cache.put(filePath, dataFile);
+
+        return dataFile;
     }
 
     public @NotNull PlayerDataFile loadPlayerDataFile(@NotNull Path path) {
+        var dataFileFromCache = cache.getIfPresent(path);
+
+        if (dataFileFromCache != null) {
+            return dataFileFromCache;
+        }
+
         var yaml = BukkitYamlFactory.loadUnsafe(path);
         var owner = UUIDValue.INSTANCE.getValue(yaml);
         var backupTime = BackupTimeValue.INSTANCE.getValue(yaml);
@@ -61,17 +80,17 @@ public class Storage {
     }
 
     public @NotNull Stream<Path> getPlayerDataYamlFiles(@NotNull UUID uuid) {
-       var dir = getPlayerDirectory(uuid);
-       if (Files.isDirectory(dir)) {
-           try {
-               return Files.list(dir)
-                       .filter(Files::isRegularFile)
-                       .filter(Files::isReadable)
-                       .filter(s -> s.toString().endsWith(".yml"));
-           } catch (IOException e) {
-               e.printStackTrace();
-           }
-       }
+        var dir = getPlayerDirectory(uuid);
+        if (Files.isDirectory(dir)) {
+            try {
+                return Files.list(dir)
+                        .filter(Files::isRegularFile)
+                        .filter(Files::isReadable)
+                        .filter(s -> s.toString().endsWith(".yml"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         return Stream.empty();
     }
 }

@@ -93,6 +93,8 @@ public final class DataBackup extends JavaPlugin {
             scheduler.shutdownNow();
         }
 
+        storage.clearCache();
+
         getServer().getScheduler().cancelTasks(this);
         HandlerList.unregisterAll(this);
 
