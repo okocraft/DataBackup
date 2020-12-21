@@ -7,7 +7,10 @@ import com.github.siroshun09.mccommand.common.argument.Argument;
 import com.github.siroshun09.mccommand.common.context.CommandContext;
 import com.github.siroshun09.mccommand.common.sender.Sender;
 import net.okocraft.databackup.DataBackup;
-import net.okocraft.databackup.Message;
+import net.okocraft.databackup.lang.DefaultMessage;
+import net.okocraft.databackup.lang.MessageProvider;
+import net.okocraft.databackup.lang.Placeholders;
+import net.okocraft.databackup.storage.PlayerDataFile;
 import net.okocraft.databackup.task.BackupTask;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -20,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
 
 public class BackupCommand extends AbstractCommand {
 
@@ -38,22 +42,22 @@ public class BackupCommand extends AbstractCommand {
         Sender sender = context.getSender();
 
         if (!sender.hasPermission(getPermission())) {
-            Message.COMMAND_NO_PERMISSION.replacePermission(getPermission()).send(sender);
+            MessageProvider.sendNoPermission(sender, getPermission());
             return CommandResult.NO_PERMISSION;
         }
 
         List<Argument> args = context.getArguments();
 
         if (args.size() < 2) {
-            Message.COMMAND_BACKUP_USAGE.send(sender);
-            return CommandResult.INVALID_ARGUMENTS;
+            MessageProvider.sendMessageWithPrefix(DefaultMessage.COMMAND_BACKUP_USAGE, sender);
+            return CommandResult.NO_ARGUMENT;
         }
 
         Argument secondArgument = args.get(1);
 
         if (secondArgument.get().equalsIgnoreCase(ALL)) {
             plugin.getScheduler().execute(new BackupTask(plugin));
-            Message.COMMAND_BACKUP_ALL.send(sender);
+            MessageProvider.sendMessageWithPrefix(DefaultMessage.COMMAND_BACKUP_ALL, sender);
             return CommandResult.SUCCESS;
         } else {
             return backupPlayer(sender, secondArgument);
@@ -83,18 +87,26 @@ public class BackupCommand extends AbstractCommand {
         Optional<Player> playerOptional = BukkitParser.PLAYER.parseOptional(argument);
 
         if (playerOptional.isEmpty()) {
-            Message.COMMAND_PLAYER_NOT_FOUND.replacePlayer(argument.get()).send(sender);
+            MessageProvider.getBuilderWithPrefix(DefaultMessage.COMMAND_PLAYER_NOT_FOUND, sender)
+                    .replace(Placeholders.PLAYER_NAME, argument)
+                    .send(sender);
             return CommandResult.STATE_ERROR;
         }
 
         Player target = playerOptional.get();
-        boolean success = plugin.getStorage().backup(target);
+        PlayerDataFile dataFile = plugin.getStorage().createPlayerDataFile(target);
 
-        if (success) {
-            Message.COMMAND_BACKUP_PLAYER.replacePlayer(target.getName()).send(sender);
+        dataFile.backup(plugin.getDataTypeRegistry().getRegisteredDataType());
+
+        try {
+            dataFile.save();
+            MessageProvider.getBuilderWithPrefix(DefaultMessage.COMMAND_BACKUP_PLAYER, sender)
+                    .replace(Placeholders.PLAYER, target)
+                    .send(sender);
             return CommandResult.SUCCESS;
-        } else {
-            Message.COMMAND_BACKUP_FAILURE.send(sender);
+        } catch (Throwable e) {
+            plugin.getLogger().log(Level.WARNING, "Could not back up player (" + target.getName() + ")", e);
+            MessageProvider.sendMessageWithPrefix(DefaultMessage.COMMAND_BACKUP_FAILURE, sender);
             return CommandResult.STATE_ERROR;
         }
     }

@@ -1,59 +1,59 @@
 package net.okocraft.databackup.data.impl;
 
 import com.github.siroshun09.configapi.bukkit.BukkitYaml;
-import net.okocraft.databackup.Message;
+import com.github.siroshun09.configapi.common.configurable.Configurable;
+import com.github.siroshun09.configapi.common.configurable.FloatValue;
+import com.github.siroshun09.mccommand.bukkit.sender.BukkitSender;
 import net.okocraft.databackup.data.BackupData;
-import net.okocraft.databackup.user.UserList;
+import net.okocraft.databackup.data.DataType;
+import net.okocraft.databackup.lang.DefaultMessage;
+import net.okocraft.databackup.lang.MessageProvider;
+import net.okocraft.databackup.lang.Placeholders;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
-public class ExpData implements BackupData {
+public class ExpData implements DataType<Float> {
 
-    private final static String DATA_NAME = "xp";
+    private static final FloatValue EXP = Configurable.create("exp", 0.0f);
 
-    private final float exp;
-
-    private ExpData(float exp) {
-        this.exp = exp;
-    }
-
-    @NotNull
-    public static String getName() {
-        return DATA_NAME;
-    }
-
-    @Contract("_ -> new")
-    @NotNull
-    public static ExpData load(@NotNull BukkitYaml yaml) {
-        return new ExpData((float) yaml.getDouble(DATA_NAME));
-    }
-
-    @Contract("_ -> new")
-    @NotNull
-    public static ExpData backup(@NotNull Player player) {
-        return new ExpData(player.getExp());
+    @Override
+    public @NotNull String getName() {
+        return EXP.getKey();
     }
 
     @Override
-    public void save(@NotNull BukkitYaml yaml) {
-        yaml.set(DATA_NAME, exp);
+    public @NotNull Function<Player, BackupData<Float>> backup() {
+        return player -> BackupData.create(player.getUniqueId(), player.getExp());
     }
 
     @Override
-    public void rollback(@NotNull Player player) {
-        player.setExp(exp);
+    public @NotNull BiConsumer<BackupData<Float>, Player> rollback() {
+        return (expData, player) -> player.setExp(expData.get());
     }
 
     @Override
-    public void show(@NotNull Player player, @NotNull UUID owner, @NotNull LocalDateTime backupTime) {
-        Message.COMMAND_SHOW_EXP
-                .replaceDate(backupTime)
-                .replaceExp(exp)
-                .replacePlayer(UserList.getName(owner))
-                .send(player);
+    public @NotNull BiConsumer<BackupData<Float>, BukkitSender> show() {
+        return (expData, sender) ->
+                MessageProvider.getBuilderWithPrefix(DefaultMessage.COMMAND_SHOW_EXP, sender)
+                        .replace(Placeholders.EXP, expData.get())
+                        .replace(Placeholders.DATE, BackupTimeValue.toLocalDateTime(expData.getBackupTime()))
+                        .send(sender);
+    }
+
+    @Override
+    public @NotNull Function<BukkitYaml, BackupData<Float>> load() {
+        return yaml -> BackupData.create(
+                UUIDValue.INSTANCE.getValue(yaml),
+                BackupTimeValue.INSTANCE.getValue(yaml),
+                EXP.getValue(yaml)
+        );
+    }
+
+    @Override
+    public @NotNull BiConsumer<BackupData<Float>, BukkitYaml> save() {
+        return (expData, yaml) -> yaml.setValue(EXP, expData.get());
     }
 }

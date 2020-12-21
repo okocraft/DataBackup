@@ -1,15 +1,19 @@
 package net.okocraft.databackup.command.subcommand;
 
-import com.github.siroshun09.configapi.bukkit.BukkitYaml;
 import com.github.siroshun09.mccommand.bukkit.argument.parser.BukkitParser;
+import com.github.siroshun09.mccommand.bukkit.sender.BukkitSender;
 import com.github.siroshun09.mccommand.common.AbstractCommand;
 import com.github.siroshun09.mccommand.common.CommandResult;
 import com.github.siroshun09.mccommand.common.argument.Argument;
 import com.github.siroshun09.mccommand.common.context.CommandContext;
 import com.github.siroshun09.mccommand.common.sender.Sender;
 import net.okocraft.databackup.DataBackup;
-import net.okocraft.databackup.Message;
 import net.okocraft.databackup.data.DataType;
+import net.okocraft.databackup.data.impl.BackupTimeValue;
+import net.okocraft.databackup.lang.DefaultMessage;
+import net.okocraft.databackup.lang.MessageProvider;
+import net.okocraft.databackup.lang.Placeholders;
+import net.okocraft.databackup.storage.PlayerDataFile;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
@@ -40,22 +44,24 @@ public class RollbackCommand extends AbstractCommand {
         Sender sender = context.getSender();
 
         if (!sender.hasPermission(getPermission())) {
-            Message.COMMAND_NO_PERMISSION.replacePermission(getPermission()).send(sender);
+            MessageProvider.sendNoPermission(sender, getPermission());
             return CommandResult.NO_PERMISSION;
         }
 
         List<Argument> args = context.getArguments();
 
         if (args.size() < 4) {
-            Message.COMMAND_ROLLBACK_USAGE.send(sender);
+            MessageProvider.sendMessageWithPrefix(DefaultMessage.COMMAND_ROLLBACK_USAGE, sender);
             return CommandResult.INVALID_ARGUMENTS;
         }
 
         Argument secondArgument = args.get(1);
-        Optional<DataType> type = plugin.getStorage().getDataType(secondArgument.get());
+        Optional<DataType<?>> type = plugin.getDataTypeRegistry().get(secondArgument);
 
         if (type.isEmpty()) {
-            Message.COMMAND_INVALID_DATA_TYPE.replaceType(secondArgument.get()).send(sender);
+            MessageProvider.getBuilderWithPrefix(DefaultMessage.COMMAND_INVALID_DATA_TYPE, sender)
+                    .replace(Placeholders.DATA_TYPE_NAME, secondArgument)
+                    .send(sender);
             return CommandResult.INVALID_ARGUMENTS;
         }
 
@@ -63,33 +69,44 @@ public class RollbackCommand extends AbstractCommand {
         Player target = BukkitParser.PLAYER.parse(thirdArgument);
 
         if (target == null) {
-            Message.COMMAND_PLAYER_NOT_FOUND.replacePlayer(thirdArgument.get()).send(sender);
+            MessageProvider.getBuilderWithPrefix(DefaultMessage.COMMAND_PLAYER_NOT_FOUND, sender)
+                    .replace(Placeholders.PLAYER_NAME, thirdArgument)
+                    .send(sender);
             return CommandResult.INVALID_ARGUMENTS;
         }
 
         Argument fourthArgument = args.get(3);
-        Path filePath = plugin.getStorage().createFilePath(target, fourthArgument.get());
+        Path filePath = plugin.getStorage().getPlayerDirectory(target).resolve(fourthArgument.get());
 
         if (!Files.exists(filePath)) {
-            Message.COMMAND_BACKUP_NOT_FOUND.send(sender);
+            MessageProvider.getBuilderWithPrefix(DefaultMessage.COMMAND_PLAYER_NOT_FOUND, sender)
+                    .replace(Placeholders.PLAYER_NAME, thirdArgument)
+                    .send(sender);
             return CommandResult.INVALID_ARGUMENTS;
         }
 
-        BukkitYaml yaml = new BukkitYaml(filePath);
-        type.get().load(yaml).rollback(target);
-        LocalDateTime dateTime = plugin.getStorage().getDateTime(yaml);
+        PlayerDataFile dataFile = plugin.getStorage().loadPlayerDataFile(filePath);
 
-        Message.COMMAND_ROLLBACK_SENDER
-                .replacePlayer(target.getName())
-                .replaceType(type.get().getName())
-                .replaceDate(dateTime)
+        try {
+            dataFile.rollback(type.get());
+        } catch (Throwable e) {
+            MessageProvider.sendMessageWithPrefix(DefaultMessage.COMMAND_ROLLBACK_FAILURE, sender);
+            return CommandResult.EXCEPTION_OCCURRED;
+        }
+
+        LocalDateTime dateTime = BackupTimeValue.toLocalDateTime(dataFile.getBackupTime());
+
+        MessageProvider.getBuilderWithPrefix(DefaultMessage.COMMAND_ROLLBACK_SENDER, sender)
+                .replace(Placeholders.PLAYER, target)
+                .replace(Placeholders.DATA_TYPE, type.get())
+                .replace(Placeholders.DATE, dateTime)
                 .send(sender);
 
         if (!target.getUniqueId().equals(sender.getUUID())) {
-            Message.COMMAND_ROLLBACK_TARGET
-                    .replaceType(type.get().getName())
-                    .replaceDate(dateTime)
-                    .send(target);
+            MessageProvider.getBuilderWithPrefix(DefaultMessage.COMMAND_ROLLBACK_TARGET, sender)
+                    .replace(Placeholders.DATA_TYPE, type.get())
+                    .replace(Placeholders.DATE, dateTime)
+                    .send(new BukkitSender(target));
         }
 
         return CommandResult.SUCCESS;
@@ -108,7 +125,10 @@ public class RollbackCommand extends AbstractCommand {
 
             return StringUtil.copyPartialMatches(
                     secondArgument.get(),
-                    plugin.getStorage().getDataListAsString(),
+                    plugin.getDataTypeRegistry().getRegisteredDataType()
+                            .stream()
+                            .map(DataType::getName)
+                            .collect(Collectors.toList()),
                     new ArrayList<>()
             );
         }
@@ -134,7 +154,10 @@ public class RollbackCommand extends AbstractCommand {
 
                 return StringUtil.copyPartialMatches(
                         fourthArgument.get(),
-                        plugin.getStorage().getFileListAsString(target.getUniqueId()),
+                        plugin.getStorage().getPlayerDataYamlFiles(target.getUniqueId())
+                                .map(Path::getFileName)
+                                .map(Path::toString)
+                                .collect(Collectors.toUnmodifiableList()),
                         new ArrayList<>()
                 );
             }

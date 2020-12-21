@@ -1,15 +1,19 @@
 package net.okocraft.databackup.command.subcommand;
 
-import com.github.siroshun09.configapi.bukkit.BukkitYaml;
+import com.github.siroshun09.mccommand.bukkit.argument.parser.BukkitParser;
+import com.github.siroshun09.mccommand.bukkit.sender.BukkitSender;
 import com.github.siroshun09.mccommand.common.AbstractCommand;
 import com.github.siroshun09.mccommand.common.CommandResult;
 import com.github.siroshun09.mccommand.common.argument.Argument;
 import com.github.siroshun09.mccommand.common.context.CommandContext;
 import com.github.siroshun09.mccommand.common.sender.Sender;
 import net.okocraft.databackup.DataBackup;
-import net.okocraft.databackup.Message;
 import net.okocraft.databackup.data.DataType;
-import net.okocraft.databackup.user.UserList;
+import net.okocraft.databackup.lang.DefaultMessage;
+import net.okocraft.databackup.lang.MessageProvider;
+import net.okocraft.databackup.lang.Placeholders;
+import net.okocraft.databackup.storage.PlayerDataFile;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
@@ -17,14 +21,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ShowCommand extends AbstractCommand {
 
@@ -41,27 +45,27 @@ public class ShowCommand extends AbstractCommand {
         Sender sender = context.getSender();
 
         if (!sender.hasPermission(getPermission())) {
-            Message.COMMAND_NO_PERMISSION.replacePermission(getPermission()).send(sender);
+            MessageProvider.sendNoPermission(sender, getPermission());
             return CommandResult.NO_PERMISSION;
         }
 
         Player player = plugin.getServer().getPlayer(sender.getUUID());
 
         if (player == null) {
-            Message.COMMAND_ONLY_PLAYER.send(sender);
+            MessageProvider.sendMessageWithPrefix(DefaultMessage.COMMAND_ONLY_PLAYER, sender);
             return CommandResult.NOT_PLAYER;
         }
 
         List<Argument> args = context.getArguments();
 
         if (args.size() < 4) {
-            Message.COMMAND_SHOW_USAGE.send(sender);
+            MessageProvider.sendMessageWithPrefix(DefaultMessage.COMMAND_SHOW_USAGE, sender);
             return CommandResult.INVALID_ARGUMENTS;
         }
 
         if (args.get(1).get().equalsIgnoreCase("offline")) {
             if (args.size() < 5) {
-                Message.COMMAND_SHOW_USAGE.send(player);
+                MessageProvider.sendMessageWithPrefix(DefaultMessage.COMMAND_SHOW_USAGE, sender);
                 return CommandResult.INVALID_ARGUMENTS;
             }
 
@@ -70,33 +74,35 @@ public class ShowCommand extends AbstractCommand {
 
 
         Argument secondArgument = args.get(1);
-        Optional<DataType> type = plugin.getStorage().getDataType(secondArgument.get());
+        Optional<DataType<?>> type = plugin.getDataTypeRegistry().get(secondArgument);
 
         if (type.isEmpty()) {
-            Message.COMMAND_INVALID_DATA_TYPE.replaceType(secondArgument.get()).send(player);
+            MessageProvider.getBuilderWithPrefix(DefaultMessage.COMMAND_INVALID_DATA_TYPE, sender)
+                    .replace(Placeholders.DATA_TYPE_NAME, secondArgument)
+                    .send(sender);
             return CommandResult.INVALID_ARGUMENTS;
         }
 
         Argument thirdArgument = args.get(2);
-        UUID target = UserList.PARSER.parse(thirdArgument);
+        OfflinePlayer target = BukkitParser.OFFLINE_PLAYER.parse(thirdArgument);
 
         if (target == null) {
-            Message.COMMAND_PLAYER_NOT_FOUND.replacePlayer(thirdArgument.get()).send(player);
+            MessageProvider.getBuilderWithPrefix(DefaultMessage.COMMAND_PLAYER_NOT_FOUND, sender)
+                    .replace(Placeholders.PLAYER_NAME, thirdArgument)
+                    .send(sender);
             return CommandResult.STATE_ERROR;
         }
 
         Argument fourthArgument = args.get(3);
-        Path filePath = plugin.getStorage().createFilePath(target, fourthArgument.get());
+        Path filePath = plugin.getStorage().getPlayerDirectory(target).resolve(fourthArgument.get());
 
         if (!Files.exists(filePath)) {
-            Message.COMMAND_BACKUP_NOT_FOUND.send(player);
+            MessageProvider.sendMessageWithPrefix(DefaultMessage.COMMAND_BACKUP_NOT_FOUND, sender);
             return CommandResult.INVALID_ARGUMENTS;
         }
 
-        BukkitYaml yaml = new BukkitYaml(filePath);
-        LocalDateTime dateTime = plugin.getStorage().getDateTime(yaml);
-
-        type.get().load(yaml).show(player, target, dateTime);
+        PlayerDataFile dataFile = plugin.getStorage().loadPlayerDataFile(filePath);
+        dataFile.show(type.get(), (BukkitSender) sender);
 
         return CommandResult.SUCCESS;
     }
@@ -118,7 +124,11 @@ public class ShowCommand extends AbstractCommand {
 
         if (args.size() == 2) {
             Argument secondArgument = args.get(1);
-            List<String> result = offline ? plugin.getStorage().getDataListAsString() : new ArrayList<>(plugin.getStorage().getDataListAsString());
+            List<String> result =
+                    plugin.getDataTypeRegistry().getRegisteredDataType()
+                            .stream()
+                            .map(DataType::getName)
+                            .collect(Collectors.toList());
 
             if (!offline) {
                 result.add("offline");
@@ -130,28 +140,30 @@ public class ShowCommand extends AbstractCommand {
         if (args.size() == 3) {
             Argument thirdArgument = args.get(2);
             List<String> result = offline ?
-                    List.copyOf(UserList.getUsers()) :
+                    Stream.of(plugin.getServer().getOfflinePlayers())
+                            .map(OfflinePlayer::getName)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList()) :
                     plugin.getServer().getOnlinePlayers().stream()
                             .map(HumanEntity::getName)
                             .collect(Collectors.toUnmodifiableList());
 
-            return StringUtil.copyPartialMatches(
-                    thirdArgument.get(),
-                    result,
-                    new ArrayList<>()
-            );
+            return StringUtil.copyPartialMatches(thirdArgument.get(), result, new ArrayList<>());
         }
 
         if (args.size() == 4) {
             Argument thirdArgument = args.get(2);
-            UUID uuid = UserList.PARSER.parse(thirdArgument);
+            OfflinePlayer target = BukkitParser.OFFLINE_PLAYER.parse(thirdArgument);
 
-            if (uuid != null) {
+            if (target != null) {
                 Argument fourthArgument = args.get(3);
 
                 return StringUtil.copyPartialMatches(
                         fourthArgument.get(),
-                        plugin.getStorage().getFileListAsString(uuid),
+                        plugin.getStorage().getPlayerDataYamlFiles(target.getUniqueId())
+                                .map(Path::getFileName)
+                                .map(Path::toString)
+                                .collect(Collectors.toUnmodifiableList()),
                         new ArrayList<>()
                 );
             }

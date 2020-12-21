@@ -1,26 +1,24 @@
 package net.okocraft.databackup.task;
 
-import com.github.siroshun09.configapi.bukkit.BukkitYaml;
+import com.github.siroshun09.mccommand.bukkit.sender.BukkitSender;
 import net.okocraft.databackup.DataBackup;
-import net.okocraft.databackup.Message;
-import net.okocraft.databackup.data.BackupData;
-import net.okocraft.databackup.data.BackupStorage;
+import net.okocraft.databackup.Setting;
+import net.okocraft.databackup.data.DataType;
+import net.okocraft.databackup.lang.DefaultMessage;
+import net.okocraft.databackup.lang.MessageProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 public class BackupTask implements Runnable {
 
-    private static final long MILLI_SECONDS_TO_WAIT = 1000;
+    private static final long MILLI_SECONDS_TO_WAIT = 10000;
 
     private final DataBackup plugin;
 
@@ -36,69 +34,66 @@ public class BackupTask implements Runnable {
             return;
         }
 
-        boolean broadcast = plugin.getConfiguration().isBroadcastMode();
+        boolean broadcast = Setting.BACKUP_BROADCAST.getValue(plugin.getConfiguration());
 
         plugin.getLogger().info("Starting backup...");
 
         if (broadcast) {
-            players.stream().filter(OfflinePlayer::isOnline).forEach(Message.BACKUP_START::send);
+            players.stream()
+                    .filter(OfflinePlayer::isOnline)
+                    .map(BukkitSender::new)
+                    .forEach(p -> MessageProvider.sendMessage(DefaultMessage.BACKUP_START, p));
         }
 
         long start = System.currentTimeMillis();
 
-        CompletableFuture.allOf(
-                players.stream()
-                        .map(p -> CompletableFuture.runAsync(() -> backup(p)))
-                        .toArray(CompletableFuture[]::new)
-        ).join();
+        var dataTypes = plugin.getDataTypeRegistry().getRegisteredDataType();
+        players.forEach(p -> backup(p, dataTypes));
 
         long finish = System.currentTimeMillis();
 
         plugin.getLogger().info("Backup task is completed. (" + (finish - start) + "ms)");
 
         if (broadcast) {
-            players.stream().filter(OfflinePlayer::isOnline).forEach(Message.BACKUP_FINISH::send);
+            players.stream()
+                    .filter(OfflinePlayer::isOnline)
+                    .map(BukkitSender::new)
+                    .forEach(p -> MessageProvider.sendMessage(DefaultMessage.BACKUP_FINISH, p));
         }
     }
 
-    private void backup(@NotNull Player player) {
-        BackupStorage storage = plugin.getStorage();
+    private void backup(@NotNull Player player, @NotNull Collection<DataType<?>> dataTypes) {
+        var dataFile = plugin.getStorage().createPlayerDataFile(player);
+        dataFile.setPlayerCache(player);
 
-        BukkitYaml yaml = new BukkitYaml(storage.createFilePath(player));
-        Set<BackupData> result = new HashSet<>();
+        AtomicBoolean waiting = new AtomicBoolean(false);
+        AtomicBoolean backedUp = new AtomicBoolean(false);
 
-        AtomicBoolean b = new AtomicBoolean(false);
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            dataFile.backup(dataTypes);
+            backedUp.set(true);
 
-        plugin.getServer().getScheduler().runTask(plugin, () -> {
-            getData(result, player);
-
-            synchronized (b) {
-                b.notify();
+            if (waiting.get()) {
+                synchronized (waiting) {
+                    waiting.notifyAll();
+                }
             }
         });
 
-        if (!b.get()) {
+        if (!backedUp.get()) {
             try {
-                synchronized (b) {
-                    b.wait(MILLI_SECONDS_TO_WAIT);
+                waiting.set(true);
+                synchronized (waiting) {
+                    waiting.wait(MILLI_SECONDS_TO_WAIT);
                 }
             } catch (InterruptedException e) {
                 plugin.getLogger().log(Level.SEVERE, "Could not get player data: " + player.getName(), e);
             }
+
+            waiting.set(false);
         }
 
-        result.forEach(type -> type.save(yaml));
 
-        yaml.set(storage.getDatetimePath(), DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now()));
-
-        if (yaml.save()) {
-            plugin.debug(player.getName() + " was successfully backed up.");
-        } else {
-            plugin.getLogger().severe("Failed to save " + player.getName() + "'s data.");
-        }
-    }
-
-    private void getData(@NotNull Set<BackupData> toCollect, @NotNull Player player) {
-        plugin.getStorage().getDataList().stream().map(type -> type.backup(player)).forEach(toCollect::add);
+        dataFile.save(plugin.getLogger());
     }
 }

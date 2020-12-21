@@ -1,6 +1,7 @@
 package net.okocraft.databackup.task;
 
 import net.okocraft.databackup.DataBackup;
+import net.okocraft.databackup.Setting;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -22,7 +23,7 @@ public class FileCheckTask implements Runnable {
 
     @Override
     public void run() {
-        if (!Files.exists(plugin.getStorage().getPlayerDataDir())) {
+        if (!Files.exists(plugin.getStorage().getRootDirectory())) {
             return;
         }
 
@@ -40,7 +41,7 @@ public class FileCheckTask implements Runnable {
     private int checkDirectory() {
         AtomicInteger count = new AtomicInteger();
 
-        getUserDirectories(plugin.getStorage().getPlayerDataDir()).forEach(p -> count.addAndGet(checkUserDirectory(p)));
+        getUserDirectories(plugin.getStorage().getRootDirectory()).forEach(p -> count.addAndGet(checkUserDirectory(p)));
 
         return count.get();
     }
@@ -71,7 +72,7 @@ public class FileCheckTask implements Runnable {
 
     private boolean isExpired(@NotNull Path path) {
         try {
-            return plugin.getConfiguration().getBackupPeriod()
+            return Setting.BACKUP_PERIOD.getValue(plugin.getConfiguration())
                     <= Duration.between(Files.getLastModifiedTime(path).toInstant(), Instant.now()).toDays();
         } catch (IOException e) {
             plugin.getLogger().severe("Failed to check file, ignore " + path.toAbsolutePath().toString());

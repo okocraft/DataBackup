@@ -10,13 +10,15 @@ import com.github.siroshun09.mccommand.common.SubCommandHolder;
 import com.github.siroshun09.mccommand.common.argument.Argument;
 import com.github.siroshun09.mccommand.common.context.CommandContext;
 import com.github.siroshun09.mccommand.common.sender.Sender;
+import com.github.siroshun09.mcmessage.MessageReceiver;
 import net.okocraft.databackup.DataBackup;
-import net.okocraft.databackup.Message;
 import net.okocraft.databackup.command.subcommand.BackupCommand;
 import net.okocraft.databackup.command.subcommand.CleanCommand;
 import net.okocraft.databackup.command.subcommand.RollbackCommand;
 import net.okocraft.databackup.command.subcommand.SearchCommand;
 import net.okocraft.databackup.command.subcommand.ShowCommand;
+import net.okocraft.databackup.lang.DefaultMessage;
+import net.okocraft.databackup.lang.MessageProvider;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +51,7 @@ public class DataBackupCommand extends AbstractCommand {
         Sender sender = context.getSender();
 
         if (!sender.hasPermission(getPermission())) {
-            Message.COMMAND_NO_PERMISSION.replacePermission(getPermission()).send(sender);
+            MessageProvider.sendNoPermission(sender, getPermission());
             return CommandResult.NO_PERMISSION;
         }
 
@@ -100,12 +102,16 @@ public class DataBackupCommand extends AbstractCommand {
         }
     }
 
-    private void sendUsage(@NotNull Sender sender) {
-        Message.COMMAND_USAGE.send(sender);
-        Message.COMMAND_BACKUP_USAGE.send(sender);
-        Message.COMMAND_CLEAN_USAGE.send(sender);
-        Message.COMMAND_ROLLBACK_USAGE.send(sender);
-        Message.COMMAND_SEARCH_USAGE.send(sender);
-        Message.COMMAND_SHOW_USAGE.send(sender);
+    private void sendUsage(@NotNull MessageReceiver receiver) {
+        send(DefaultMessage.COMMAND_USAGE, receiver);
+        send(DefaultMessage.COMMAND_BACKUP_USAGE, receiver);
+        send(DefaultMessage.COMMAND_CLEAN_USAGE, receiver);
+        send(DefaultMessage.COMMAND_ROLLBACK_USAGE, receiver);
+        send(DefaultMessage.COMMAND_SEARCH_USAGE, receiver);
+        send(DefaultMessage.COMMAND_SHOW_USAGE, receiver);
+    }
+
+    private void send(@NotNull DefaultMessage defaultMessage, @NotNull MessageReceiver receiver) {
+        MessageProvider.sendMessageWithPrefix(defaultMessage, receiver);
     }
 }

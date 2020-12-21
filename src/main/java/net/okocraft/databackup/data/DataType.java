@@ -1,37 +1,24 @@
 package net.okocraft.databackup.data;
 
 import com.github.siroshun09.configapi.bukkit.BukkitYaml;
+import com.github.siroshun09.mccommand.bukkit.sender.BukkitSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public class DataType {
+public interface DataType<T> {
 
-    private final String name;
-    private final Function<BukkitYaml, BackupData> loadFunction;
-    private final Function<Player, BackupData> backupFunction;
+    @NotNull String getName();
 
-    public DataType(@NotNull String name,
-                    @NotNull Function<BukkitYaml, BackupData> loadFunction,
-                    @NotNull Function<Player, BackupData> backupFunction) {
-        this.name = name;
-        this.loadFunction = loadFunction;
-        this.backupFunction = backupFunction;
-    }
+    @NotNull Function<Player, BackupData<T>> backup();
 
-    @NotNull
-    public String getName() {
-        return name;
-    }
+    @NotNull BiConsumer<BackupData<T>, Player> rollback();
 
-    @NotNull
-    public BackupData load(@NotNull BukkitYaml yaml) {
-        return loadFunction.apply(yaml);
-    }
+    @NotNull BiConsumer<BackupData<T>, BukkitSender> show();
 
-    @NotNull
-    public BackupData backup(@NotNull Player player) {
-        return backupFunction.apply(player);
-    }
+    @NotNull Function<BukkitYaml, BackupData<T>> load();
+
+    @NotNull BiConsumer<BackupData<T>, BukkitYaml> save();
 }

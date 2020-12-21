@@ -5,7 +5,8 @@ import com.github.siroshun09.mccommand.common.CommandResult;
 import com.github.siroshun09.mccommand.common.context.CommandContext;
 import com.github.siroshun09.mccommand.common.sender.Sender;
 import net.okocraft.databackup.DataBackup;
-import net.okocraft.databackup.Message;
+import net.okocraft.databackup.lang.DefaultMessage;
+import net.okocraft.databackup.lang.MessageProvider;
 import net.okocraft.databackup.task.FileCheckTask;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,12 +29,12 @@ public class CleanCommand extends AbstractCommand {
         Sender sender = context.getSender();
 
         if (!sender.hasPermission(getPermission())) {
-            Message.COMMAND_NO_PERMISSION.replacePermission(getPermission()).send(sender);
+            MessageProvider.sendNoPermission(sender, getPermission());
             return CommandResult.NO_PERMISSION;
         }
 
         plugin.getScheduler().execute(new FileCheckTask(plugin));
-        Message.COMMAND_CLEAN_RUN.send(sender);
+        MessageProvider.sendMessageWithPrefix(DefaultMessage.COMMAND_CLEAN_RUN, sender);
 
         return CommandResult.SUCCESS;
     }

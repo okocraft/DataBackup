@@ -1,68 +1,99 @@
 package net.okocraft.databackup.data.impl;
 
 import com.github.siroshun09.configapi.bukkit.BukkitYaml;
+import com.github.siroshun09.mccommand.bukkit.sender.BukkitSender;
 import net.okocraft.databackup.data.BackupData;
+import net.okocraft.databackup.data.DataType;
+import net.okocraft.databackup.data.ItemSearchable;
 import net.okocraft.databackup.gui.DataBackupGui;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
-public class EnderChestData implements BackupData {
+public class EnderChestData implements DataType<List<ItemStack>> {
 
-    private final static String DATA_NAME = "enderchest";
+    private static final int ARRAY_LENGTH = 27;
 
-    private final ItemStack[] items;
-
-    private EnderChestData(@NotNull ItemStack[] item) {
-        this.items = item;
-    }
-
-    @NotNull
-    public static String getName() {
-        return DATA_NAME;
-    }
-
-    @Contract("_ -> new")
-    @NotNull
-    public static EnderChestData load(@NotNull BukkitYaml yaml) {
-        ItemStack[] items = new ItemStack[27];
-
-        for (int i = 0; i < items.length; i++) {
-            items[i] = yaml.getItemStack(DATA_NAME + "." + i);
-        }
-
-        return new EnderChestData(items);
-    }
-
-    @Contract("_ -> new")
-    @NotNull
-    public static EnderChestData backup(@NotNull Player player) {
-        return new EnderChestData(player.getEnderChest().getContents());
+    @Override
+    public @NotNull String getName() {
+        return "enderchest";
     }
 
     @Override
-    public void save(@NotNull BukkitYaml yaml) {
-        for (int i = 0; i < items.length; i++) {
-            yaml.set(DATA_NAME + "." + i, items[i]);
-        }
+    public @NotNull Function<Player, BackupData<List<ItemStack>>> backup() {
+        return player -> {
+            var array = player.getEnderChest().getContents();
+            var listed = new ArrayList<ItemStack>(ARRAY_LENGTH);
+            for (int i = 0; i < ARRAY_LENGTH; i++) {
+                var item = array[i];
+                listed.add(item != null ? item : new ItemStack(Material.AIR));
+            }
+            return ItemSearchable.createData(player.getUniqueId(), listed);
+        };
     }
 
     @Override
-    public void rollback(@NotNull Player player) {
-        player.getEnderChest().setContents(items);
+    public @NotNull BiConsumer<BackupData<List<ItemStack>>, Player> rollback() {
+        return (itemData, player) -> {
+            var array = new ItemStack[ARRAY_LENGTH];
+            if (itemData.get().size() == array.length) {
+                for (int i = 0; i < array.length; i++) {
+                    array[i] = itemData.get().get(i);
+                }
+                player.getEnderChest().setContents(array);
+                player.updateInventory();
+            } else {
+                throw new IllegalArgumentException();
+            }
+        };
     }
 
     @Override
-    public void show(@NotNull Player player, @NotNull UUID owner, @NotNull LocalDateTime backupTime) {
-        DataBackupGui.openEnderchestGui(player, items, owner, backupTime);
+    public @NotNull BiConsumer<BackupData<List<ItemStack>>, BukkitSender> show() {
+        return (itemData, player) -> {
+            if (player.getCommandSender() instanceof Player) {
+                DataBackupGui.openEnderchestGui(
+                        (Player) player.getCommandSender(),
+                        itemData.get().toArray(new ItemStack[0]),
+                        itemData.getOwner(),
+                        BackupTimeValue.toLocalDateTime(itemData.getBackupTime())
+                );
+            } else {
+                // TODO: message
+            }
+        };
     }
 
-    @NotNull
-    public ItemStack[] getItems() {
-        return items;
+    @Override
+    public @NotNull Function<BukkitYaml, BackupData<List<ItemStack>>> load() {
+        return yaml -> {
+            List<ItemStack> items = new ArrayList<>(ARRAY_LENGTH);
+            for (int i = 0; i < ARRAY_LENGTH; i++) {
+                items.add(yaml.getItemStack(getName() + "." + i));
+            }
+            return ItemSearchable.createData(
+                    UUIDValue.INSTANCE.getValue(yaml),
+                    BackupTimeValue.INSTANCE.getValue(yaml),
+                    items
+            );
+        };
+    }
+
+    @Override
+    public @NotNull BiConsumer<BackupData<List<ItemStack>>, BukkitYaml> save() {
+        return (itemData, yaml) -> {
+            for (int i = 0; i < ARRAY_LENGTH || i < itemData.get().size(); i++) {
+                var item = itemData.get().get(i);
+                if (!item.getType().isAir()) {
+                    yaml.set(getName() + "." + i, item);
+                }
+            }
+        };
     }
 }
