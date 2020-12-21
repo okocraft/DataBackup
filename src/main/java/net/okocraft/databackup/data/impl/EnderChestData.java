@@ -6,6 +6,8 @@ import net.okocraft.databackup.data.BackupData;
 import net.okocraft.databackup.data.DataType;
 import net.okocraft.databackup.data.ItemSearchable;
 import net.okocraft.databackup.gui.DataBackupGui;
+import net.okocraft.databackup.lang.DefaultMessage;
+import net.okocraft.databackup.lang.MessageProvider;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -65,7 +67,7 @@ public class EnderChestData implements DataType<List<ItemStack>> {
                         BackupTimeValue.toLocalDateTime(itemData.getBackupTime())
                 );
             } else {
-                // TODO: message
+                MessageProvider.sendMessageWithPrefix(DefaultMessage.COMMAND_ONLY_PLAYER, player);
             }
         };
     }

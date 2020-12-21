@@ -49,13 +49,6 @@ public class ShowCommand extends AbstractCommand {
             return CommandResult.NO_PERMISSION;
         }
 
-        Player player = plugin.getServer().getPlayer(sender.getUUID());
-
-        if (player == null) {
-            MessageProvider.sendMessageWithPrefix(DefaultMessage.COMMAND_ONLY_PLAYER, sender);
-            return CommandResult.NOT_PLAYER;
-        }
-
         List<Argument> args = context.getArguments();
 
         if (args.size() < 4) {
