@@ -31,6 +31,8 @@ public class FileCheckTask implements Runnable {
 
         long startTime = System.currentTimeMillis();
 
+        plugin.getStorage().clearCache();
+
         int deleted = checkDirectory();
         printResult(deleted);
 
