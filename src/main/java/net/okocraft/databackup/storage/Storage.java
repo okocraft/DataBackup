@@ -61,14 +61,17 @@ public class Storage {
     }
 
     public @NotNull Stream<Path> getPlayerDataYamlFiles(@NotNull UUID uuid) {
-        try {
-            return Files.list(getPlayerDirectory(uuid))
-                    .filter(Files::isRegularFile)
-                    .filter(Files::isReadable)
-                    .filter(s -> s.toString().endsWith(".yml"));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return Stream.empty();
-        }
+       var dir = getPlayerDirectory(uuid);
+       if (Files.isDirectory(dir)) {
+           try {
+               return Files.list(dir)
+                       .filter(Files::isRegularFile)
+                       .filter(Files::isReadable)
+                       .filter(s -> s.toString().endsWith(".yml"));
+           } catch (IOException e) {
+               e.printStackTrace();
+           }
+       }
+        return Stream.empty();
     }
 }
