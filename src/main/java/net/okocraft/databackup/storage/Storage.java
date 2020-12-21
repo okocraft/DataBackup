@@ -40,6 +40,10 @@ public class Storage {
         cache.invalidateAll();
     }
 
+    public long getCacheSize() {
+        return cache.size();
+    }
+
     public Path getRootDirectory() {
         return rootDir;
     }
@@ -76,7 +80,11 @@ public class Storage {
         var owner = UUIDValue.INSTANCE.getValue(yaml);
         var backupTime = BackupTimeValue.INSTANCE.getValue(yaml);
 
-        return new PlayerDataFile(owner, yaml, backupTime);
+        var dataFile = new PlayerDataFile(owner, yaml, backupTime);
+
+        cache.put(path, dataFile);
+
+        return dataFile;
     }
 
     public @NotNull Stream<Path> getPlayerDataYamlFiles(@NotNull UUID uuid) {
