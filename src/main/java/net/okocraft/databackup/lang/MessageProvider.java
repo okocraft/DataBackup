@@ -62,6 +62,11 @@ public final class MessageProvider {
     public static void reloadLanguages(@NotNull DataBackup plugin) throws IOException {
         TRANSLATION_REGISTRY.unregisterAll();
         var path = plugin.getDataFolder().toPath().resolve("lang");
+
+        if (!Files.isDirectory(path)) {
+            Files.createDirectories(path);
+        }
+
         var defLang = path.resolve("ja_JP.properties");
         var logger = plugin.getLogger();
 
