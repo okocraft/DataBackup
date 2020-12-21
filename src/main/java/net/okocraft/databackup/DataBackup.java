@@ -2,6 +2,8 @@ package net.okocraft.databackup;
 
 import com.github.siroshun09.configapi.bukkit.BukkitYamlFactory;
 import com.github.siroshun09.configapi.common.Configuration;
+import com.github.siroshun09.mccommand.bukkit.paper.AsyncTabCompleteListener;
+import com.github.siroshun09.mccommand.bukkit.paper.PaperChecker;
 import com.gmail.nossr50.datatypes.skills.PrimarySkillType;
 import net.milkbowl.vault.economy.Economy;
 import net.okocraft.databackup.command.DataBackupCommand;
@@ -119,7 +121,11 @@ public final class DataBackup extends JavaPlugin {
 
 
     private void registerCommand(@NotNull PluginCommand command) {
-        new DataBackupCommand(this).register(command);
+        var cmd = new DataBackupCommand(this);
+        cmd.register(command);
+        if (PaperChecker.check()) {
+            AsyncTabCompleteListener.register(this, cmd);
+        }
     }
 
     public void hookMcMMO() {
