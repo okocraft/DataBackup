@@ -61,7 +61,7 @@ public final class DataBackup extends JavaPlugin {
 
         String directory = Setting.BACKUP_DESTINATION_DIRECTORY.getValue(config);
 
-        storage = new Storage(directory.isEmpty() ? Path.of(directory) : getDataFolder().toPath());
+        storage = new Storage(directory.isEmpty() ? Path.of(directory) : getDataFolder().toPath().resolve("backups"));
 
         try {
             storage.setup();
