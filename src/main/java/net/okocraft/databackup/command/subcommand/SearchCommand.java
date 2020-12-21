@@ -24,8 +24,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -129,14 +127,17 @@ public class SearchCommand extends AbstractCommand {
         }
 
         Storage storage = plugin.getStorage();
-        Path directory = storage.getPlayerDirectory(target);
 
         List<ItemStack> result = new ArrayList<>();
 
         try {
-            var start = System.currentTimeMillis();
             var dataTypes = plugin.getDataTypeRegistry().getRegisteredDataType();
-            for (PlayerDataFile dataFile : Files.list(directory).map(storage::loadPlayerDataFile).collect(Collectors.toList())) {
+            var dataSet =
+                    storage.getPlayerDataYamlFiles(target.getUniqueId())
+                            .map(storage::loadPlayerDataFile)
+                            .collect(Collectors.toSet());
+
+            for (PlayerDataFile dataFile : dataSet) {
                 if (!dataFile.isLoaded()) {
                     dataFile.loadAll(dataTypes);
                 }
@@ -147,8 +148,6 @@ public class SearchCommand extends AbstractCommand {
                     }
                 }
             }
-            var end = System.currentTimeMillis();
-            plugin.getLogger().info((end - start) + "ms");
         } catch (Throwable e) {
             MessageProvider.sendMessageWithPrefix(DefaultMessage.COMMAND_SEARCH_FAILURE, sender);
             return CommandResult.EXCEPTION_OCCURRED;
