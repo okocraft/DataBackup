@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -62,6 +63,15 @@ public class SearchCommand extends AbstractCommand {
             return CommandResult.INVALID_ARGUMENTS;
         }
 
+        if (args.get(1).get().equalsIgnoreCase("offline")) {
+            if (args.size() < 5) {
+                MessageProvider.sendMessageWithPrefix(DefaultMessage.COMMAND_SEARCH_USAGE, sender);
+                return CommandResult.INVALID_ARGUMENTS;
+            }
+
+            args = args.subList(1, args.size());
+        }
+
         return search(sender, args);
     }
 
@@ -69,18 +79,36 @@ public class SearchCommand extends AbstractCommand {
     public @NotNull List<String> onTabCompletion(@NotNull CommandContext context) {
         List<Argument> args = context.getArguments();
 
-        if (args.isEmpty() || !context.getSender().hasPermission(getPermission())) {
+        if (args.size() < 2 || !context.getSender().hasPermission(getPermission())) {
             return Collections.emptyList();
+        }
+
+        boolean offline = false;
+
+        if (args.get(1).get().equalsIgnoreCase("offline")) {
+            args = args.subList(1, args.size());
+            offline = true;
         }
 
         if (args.size() == 2) {
             Argument secondArgument = args.get(1);
 
-            return StringUtil.copyPartialMatches(
-                    secondArgument.get(),
+            var result = offline ?
+                    Stream.of(plugin.getServer().getOfflinePlayers())
+                            .map(OfflinePlayer::getName)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toUnmodifiableList()) :
                     plugin.getServer().getOnlinePlayers().stream()
                             .map(HumanEntity::getName)
-                            .collect(Collectors.toUnmodifiableList()),
+                            .collect(Collectors.toList());
+
+            if (!offline) {
+                result.add("offline");
+            }
+
+            return StringUtil.copyPartialMatches(
+                    secondArgument.get(),
+                    result,
                     new ArrayList<>()
             );
         }

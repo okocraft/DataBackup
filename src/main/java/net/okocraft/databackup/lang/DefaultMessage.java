@@ -19,7 +19,7 @@ public enum DefaultMessage implements com.github.siroshun09.mcmessage.message.De
     COMMAND_ROLLBACK_SENDER("command.rollback.sender", "&b%player%&7 の &b%type%&7 のデータを &b%date%&7 時点に戻しました。"),
     COMMAND_ROLLBACK_TARGET("command.rollback.target", "&b%type%&7 のデータが &b%date%&7 時点に戻されました。"),
     COMMAND_ROLLBACK_FAILURE("command.rollback.failure", "&cロールバックに失敗しました。コンソールを確認してください。"),
-    COMMAND_SEARCH_USAGE("command.search.usage", "&b/db search <target> <material> {page} - &7指定したアイテムを検索します。"),
+    COMMAND_SEARCH_USAGE("command.search.usage", "&b/db search {offline} <target> <material> {page} - &7指定したアイテムを検索します。"),
     COMMAND_SEARCH_NOT_FOUND("command.search.not-found", "&c指定した Material のアイテムは見つかりませんでした。"),
     COMMAND_SEARCH_FAILURE("command.search.failure", "&cアイテムの検索に失敗しました。コンソールを確認してください。"),
     COMMAND_SHOW_USAGE("command.show.usage", "&b/db show {offline} <type> <target> <file>&8 - &7指定したデータの内訳を表示します。"),
