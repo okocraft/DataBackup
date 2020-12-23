@@ -15,7 +15,6 @@ import net.okocraft.databackup.lang.Placeholders;
 import net.okocraft.databackup.storage.PlayerDataFile;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
