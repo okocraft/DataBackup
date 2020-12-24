@@ -13,6 +13,7 @@ import net.okocraft.databackup.lang.DefaultMessage;
 import net.okocraft.databackup.lang.MessageProvider;
 import net.okocraft.databackup.lang.Placeholders;
 import net.okocraft.databackup.storage.PlayerDataFile;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.HumanEntity;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +26,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ShowCommand extends AbstractCommand {
 
@@ -133,12 +133,14 @@ public class ShowCommand extends AbstractCommand {
             var thirdArgument = args.get(2).get();
 
             return offline ?
-                    Stream.of(plugin.getServer().getOfflinePlayers())
+                    plugin.getStorage().getBackedUpPlayers()
+                            .stream()
+                            .map(Bukkit::getOfflinePlayer)
                             .map(OfflinePlayer::getName)
                             .filter(Objects::nonNull)
                             .filter(player -> player.startsWith(thirdArgument))
                             .sorted()
-                            .collect(Collectors.toList()) :
+                            .collect(Collectors.toUnmodifiableList()) :
                     plugin.getServer().getOnlinePlayers().stream()
                             .map(HumanEntity::getName)
                             .filter(player -> player.startsWith(thirdArgument))

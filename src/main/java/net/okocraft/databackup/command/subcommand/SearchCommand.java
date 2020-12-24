@@ -16,6 +16,7 @@ import net.okocraft.databackup.lang.MessageProvider;
 import net.okocraft.databackup.lang.Placeholders;
 import net.okocraft.databackup.storage.PlayerDataFile;
 import net.okocraft.databackup.storage.Storage;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.HumanEntity;
@@ -29,7 +30,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class SearchCommand extends AbstractCommand {
 
@@ -100,13 +100,16 @@ public class SearchCommand extends AbstractCommand {
             var secondArgument = args.get(1).get();
 
             var result = offline ?
-                    Stream.of(plugin.getServer().getOfflinePlayers())
+                    plugin.getStorage().getBackedUpPlayers()
+                            .stream()
+                            .map(Bukkit::getOfflinePlayer)
                             .map(OfflinePlayer::getName)
                             .filter(Objects::nonNull)
                             .filter(player -> player.startsWith(secondArgument))
                             .sorted()
                             .collect(Collectors.toUnmodifiableList()) :
-                    plugin.getServer().getOnlinePlayers().stream()
+                    plugin.getServer().getOnlinePlayers()
+                            .stream()
                             .map(HumanEntity::getName)
                             .filter(player -> player.startsWith(secondArgument))
                             .sorted()

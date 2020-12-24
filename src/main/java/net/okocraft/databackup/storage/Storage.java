@@ -7,11 +7,15 @@ import net.okocraft.databackup.data.impl.BackupTimeValue;
 import net.okocraft.databackup.data.impl.UUIDValue;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -21,6 +25,7 @@ public class Storage {
     private final Path rootDir;
     private final Cache<Path, PlayerDataFile> cache =
             CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build();
+    private final Set<UUID> backedUpPlayers = new HashSet<>();
 
     public Storage(@NotNull Path rootDir) {
         this.rootDir = rootDir;
@@ -34,10 +39,13 @@ public class Storage {
         } else {
             Files.createDirectories(rootDir);
         }
+
+        getPlayerDirectories();
     }
 
     public void clearCache() {
         cache.invalidateAll();
+        getPlayerDirectories();
     }
 
     public long getCacheSize() {
@@ -46,6 +54,10 @@ public class Storage {
 
     public Path getRootDirectory() {
         return rootDir;
+    }
+
+    public @NotNull Set<UUID> getBackedUpPlayers() {
+        return backedUpPlayers;
     }
 
     public @NotNull Path getPlayerDirectory(@NotNull UUID uuid) {
@@ -62,7 +74,13 @@ public class Storage {
 
     public @NotNull PlayerDataFile createPlayerDataFile(@NotNull UUID owner) {
         var filePath = getPlayerDirectory(owner).resolve(Instant.now().toEpochMilli() + ".yml");
-        var dataFile  = new PlayerDataFile(owner, BukkitYamlFactory.loadUnsafe(filePath), 0);
+        var parent = filePath.getParent();
+
+        if (!Files.exists(parent)) {
+            backedUpPlayers.add(owner);
+        }
+
+        var dataFile = new PlayerDataFile(owner, BukkitYamlFactory.loadUnsafe(filePath), 0);
 
         cache.put(filePath, dataFile);
 
@@ -100,5 +118,26 @@ public class Storage {
             }
         }
         return Stream.empty();
+    }
+
+    private void getPlayerDirectories() {
+        try {
+            Files.list(rootDir)
+                    .map(Path::getFileName)
+                    .map(Path::toString)
+                    .map(this::parseUUID)
+                    .filter(Objects::nonNull)
+                    .forEach(backedUpPlayers::add);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private @Nullable UUID parseUUID(@NotNull String strUUID) {
+        try {
+            return UUID.fromString(strUUID);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }
