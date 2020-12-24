@@ -8,6 +8,7 @@ import com.github.siroshun09.mccommand.common.argument.Argument;
 import com.github.siroshun09.mccommand.common.context.CommandContext;
 import com.github.siroshun09.mccommand.common.sender.Sender;
 import net.okocraft.databackup.DataBackup;
+import net.okocraft.databackup.command.StartsWithIgnoreCase;
 import net.okocraft.databackup.data.DataType;
 import net.okocraft.databackup.data.impl.BackupTimeValue;
 import net.okocraft.databackup.lang.DefaultMessage;
@@ -16,13 +17,11 @@ import net.okocraft.databackup.lang.Placeholders;
 import net.okocraft.databackup.storage.PlayerDataFile;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -121,45 +120,40 @@ public class RollbackCommand extends AbstractCommand {
         }
 
         if (args.size() == 2) {
-            Argument secondArgument = args.get(1);
+            var secondArgument = args.get(1).get();
 
-            return StringUtil.copyPartialMatches(
-                    secondArgument.get(),
-                    plugin.getDataTypeRegistry().getRegisteredDataType()
-                            .stream()
-                            .map(DataType::getName)
-                            .collect(Collectors.toList()),
-                    new ArrayList<>()
-            );
+            return plugin.getDataTypeRegistry().getRegisteredDataType()
+                    .stream()
+                    .map(DataType::getName)
+                    .filter(StartsWithIgnoreCase.prefix(secondArgument))
+                    .sorted()
+                    .collect(Collectors.toList());
         }
 
         if (args.size() == 3) {
-            Argument thirdArgument = args.get(2);
+            var thirdArgument = args.get(2).get();
 
-            return StringUtil.copyPartialMatches(
-                    thirdArgument.get(),
-                    plugin.getServer().getOnlinePlayers().stream()
-                            .map(HumanEntity::getName)
-                            .collect(Collectors.toUnmodifiableList()),
-                    new ArrayList<>()
-            );
+            return plugin.getServer().getOnlinePlayers()
+                    .stream()
+                    .map(HumanEntity::getName)
+                    .filter(StartsWithIgnoreCase.prefix(thirdArgument))
+                    .sorted()
+                    .collect(Collectors.toUnmodifiableList());
         }
 
         if (args.size() == 4) {
-            Argument thirdArgument = args.get(2);
-            Player target = BukkitParser.PLAYER.parse(thirdArgument);
+            var thirdArgument = args.get(2);
+            var target = BukkitParser.PLAYER.parse(thirdArgument);
 
             if (target != null) {
-                Argument fourthArgument = args.get(3);
+                var fourthArgument = args.get(3).get();
 
-                return StringUtil.copyPartialMatches(
-                        fourthArgument.get(),
-                        plugin.getStorage().getPlayerDataYamlFiles(target.getUniqueId())
-                                .map(Path::getFileName)
-                                .map(Path::toString)
-                                .collect(Collectors.toUnmodifiableList()),
-                        new ArrayList<>()
-                );
+                return plugin.getStorage().getPlayerDataYamlFiles(target.getUniqueId())
+                        .map(Path::getFileName)
+                        .map(Path::toString)
+                        .filter(StartsWithIgnoreCase.prefix(fourthArgument))
+                        .sorted()
+                        .collect(Collectors.toUnmodifiableList());
             }
         }
 

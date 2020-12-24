@@ -12,7 +12,6 @@
 - Spigot 1.15+
 - (Optional) Vault (所持金のバックアップ機能)
 - (Optional) mcMMO (スキルレベルのバックアップ機能)
-- (Optional) [UserAPI](https://github.com/okocraft/UserAPI) (mcid → uuid 検索用, 未導入の場合は Bukkit から直接取得)
 
 ## Usage
 
@@ -30,7 +29,7 @@
 /db backup <target>: プレイヤーのバックアップを取ります。
 /db clean: 期限切れのバックアップファイルを削除します (起動毎に自動実行)
 /db rollback <type> <target> <file>: 指定したデータを戻します。
-/db search <target> <material> {page}: プレイヤーのバックアップから指定した Material のアイテムを検索します。
+/db search {offline} <target> <material> {page}: プレイヤーのバックアップから指定した Material のアイテムを検索します。
 /db show {offline} <type> <target> <file>: 指定したデータの内訳を表示します。
 ※ offline と指定しない限り、オンラインプレイヤーとして検索されます。
 ```
