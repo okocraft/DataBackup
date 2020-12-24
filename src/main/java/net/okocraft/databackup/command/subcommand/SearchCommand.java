@@ -7,8 +7,8 @@ import com.github.siroshun09.mccommand.common.CommandResult;
 import com.github.siroshun09.mccommand.common.argument.Argument;
 import com.github.siroshun09.mccommand.common.argument.parser.BasicParser;
 import com.github.siroshun09.mccommand.common.context.CommandContext;
+import com.github.siroshun09.mccommand.common.filter.StringFilter;
 import net.okocraft.databackup.DataBackup;
-import net.okocraft.databackup.command.StartsWithIgnoreCase;
 import net.okocraft.databackup.data.BackupData;
 import net.okocraft.databackup.data.ItemSearchable;
 import net.okocraft.databackup.gui.DataBackupGui;
@@ -99,6 +99,7 @@ public class SearchCommand extends AbstractCommand {
 
         if (args.size() == 2) {
             var secondArgument = args.get(1).get();
+            var filter = StringFilter.startsWithIgnoreCase(secondArgument);
 
             var result = offline ?
                     plugin.getStorage().getBackedUpPlayers()
@@ -106,13 +107,13 @@ public class SearchCommand extends AbstractCommand {
                             .map(Bukkit::getOfflinePlayer)
                             .map(OfflinePlayer::getName)
                             .filter(Objects::nonNull)
-                            .filter(StartsWithIgnoreCase.prefix(secondArgument))
+                            .filter(filter)
                             .sorted()
                             .collect(Collectors.toUnmodifiableList()) :
                     plugin.getServer().getOnlinePlayers()
                             .stream()
                             .map(HumanEntity::getName)
-                            .filter(StartsWithIgnoreCase.prefix(secondArgument))
+                            .filter(filter)
                             .sorted()
                             .collect(Collectors.toList());
 
@@ -125,19 +126,21 @@ public class SearchCommand extends AbstractCommand {
 
         if (args.size() == 3) {
             var thirdArgument = args.get(2).get();
+            var filter = StringFilter.startsWithIgnoreCase(thirdArgument);
 
             return Arrays.stream(Material.values())
                     .map(Enum::name)
-                    .filter(StartsWithIgnoreCase.prefix(thirdArgument))
+                    .filter(filter)
                     .sorted()
                     .collect(Collectors.toUnmodifiableList());
         }
 
         if (args.size() == 4) {
             var fourthArgument = args.get(3).get();
+            var filter = StringFilter.startsWithIgnoreCase(fourthArgument);
 
             return PAGES.stream()
-                    .filter(StartsWithIgnoreCase.prefix(fourthArgument))
+                    .filter(filter)
                     .collect(Collectors.toUnmodifiableList());
         }
 

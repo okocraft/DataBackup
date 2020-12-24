@@ -9,6 +9,7 @@ import com.github.siroshun09.mccommand.common.CommandResult;
 import com.github.siroshun09.mccommand.common.SubCommandHolder;
 import com.github.siroshun09.mccommand.common.argument.Argument;
 import com.github.siroshun09.mccommand.common.context.CommandContext;
+import com.github.siroshun09.mccommand.common.filter.StringFilter;
 import com.github.siroshun09.mccommand.common.sender.Sender;
 import com.github.siroshun09.mcmessage.MessageReceiver;
 import net.okocraft.databackup.DataBackup;
@@ -24,7 +25,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -72,19 +72,21 @@ public class DataBackupCommand extends AbstractCommand {
 
     @Override
     public @NotNull List<String> onTabCompletion(@NotNull CommandContext context) {
-        List<Argument> args = context.getArguments();
+        var args = context.getArguments();
 
         if (args.isEmpty() || !context.getSender().hasPermission(getPermission())) {
             return Collections.emptyList();
         }
 
-        Argument firstArgument = context.getArguments().get(0);
+        var firstArgument = context.getArguments().get(0);
 
         if (args.size() == 1) {
+            var filter = StringFilter.startsWithIgnoreCase(firstArgument.get());
+
             return subCommandHolder.getSubCommands()
                     .stream()
                     .map(Command::getName)
-                    .filter(cmd -> cmd.toLowerCase().startsWith(firstArgument.get().toLowerCase()))
+                    .filter(filter)
                     .sorted()
                     .collect(Collectors.toList());
         } else {
