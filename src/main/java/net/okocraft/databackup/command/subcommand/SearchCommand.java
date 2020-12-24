@@ -8,6 +8,7 @@ import com.github.siroshun09.mccommand.common.argument.Argument;
 import com.github.siroshun09.mccommand.common.argument.parser.BasicParser;
 import com.github.siroshun09.mccommand.common.context.CommandContext;
 import net.okocraft.databackup.DataBackup;
+import net.okocraft.databackup.command.StartsWithIgnoreCase;
 import net.okocraft.databackup.data.BackupData;
 import net.okocraft.databackup.data.ItemSearchable;
 import net.okocraft.databackup.gui.DataBackupGui;
@@ -70,7 +71,7 @@ public class SearchCommand extends AbstractCommand {
         }
 
         if (args.get(1).get().equalsIgnoreCase("offline")) {
-            if (args.size() < 5) {
+            if (args.size() < 4) {
                 MessageProvider.sendMessageWithPrefix(DefaultMessage.COMMAND_SEARCH_USAGE, sender);
                 return CommandResult.INVALID_ARGUMENTS;
             }
@@ -105,13 +106,13 @@ public class SearchCommand extends AbstractCommand {
                             .map(Bukkit::getOfflinePlayer)
                             .map(OfflinePlayer::getName)
                             .filter(Objects::nonNull)
-                            .filter(player -> player.startsWith(secondArgument))
+                            .filter(StartsWithIgnoreCase.prefix(secondArgument))
                             .sorted()
                             .collect(Collectors.toUnmodifiableList()) :
                     plugin.getServer().getOnlinePlayers()
                             .stream()
                             .map(HumanEntity::getName)
-                            .filter(player -> player.startsWith(secondArgument))
+                            .filter(StartsWithIgnoreCase.prefix(secondArgument))
                             .sorted()
                             .collect(Collectors.toList());
 
@@ -127,7 +128,7 @@ public class SearchCommand extends AbstractCommand {
 
             return Arrays.stream(Material.values())
                     .map(Enum::name)
-                    .filter(material -> material.startsWith(thirdArgument))
+                    .filter(StartsWithIgnoreCase.prefix(thirdArgument))
                     .sorted()
                     .collect(Collectors.toUnmodifiableList());
         }
@@ -136,7 +137,7 @@ public class SearchCommand extends AbstractCommand {
             var fourthArgument = args.get(3).get();
 
             return PAGES.stream()
-                    .filter(page -> page.startsWith(fourthArgument))
+                    .filter(StartsWithIgnoreCase.prefix(fourthArgument))
                     .collect(Collectors.toUnmodifiableList());
         }
 

@@ -8,6 +8,7 @@ import com.github.siroshun09.mccommand.common.argument.Argument;
 import com.github.siroshun09.mccommand.common.context.CommandContext;
 import com.github.siroshun09.mccommand.common.sender.Sender;
 import net.okocraft.databackup.DataBackup;
+import net.okocraft.databackup.command.StartsWithIgnoreCase;
 import net.okocraft.databackup.data.DataType;
 import net.okocraft.databackup.lang.DefaultMessage;
 import net.okocraft.databackup.lang.MessageProvider;
@@ -118,7 +119,7 @@ public class ShowCommand extends AbstractCommand {
                     plugin.getDataTypeRegistry().getRegisteredDataType()
                             .stream()
                             .map(DataType::getName)
-                            .filter(str -> str.startsWith(secondArgument))
+                            .filter(StartsWithIgnoreCase.prefix(secondArgument))
                             .sorted()
                             .collect(Collectors.toList());
 
@@ -138,12 +139,12 @@ public class ShowCommand extends AbstractCommand {
                             .map(Bukkit::getOfflinePlayer)
                             .map(OfflinePlayer::getName)
                             .filter(Objects::nonNull)
-                            .filter(player -> player.startsWith(thirdArgument))
+                            .filter(StartsWithIgnoreCase.prefix(thirdArgument))
                             .sorted()
                             .collect(Collectors.toUnmodifiableList()) :
                     plugin.getServer().getOnlinePlayers().stream()
                             .map(HumanEntity::getName)
-                            .filter(player -> player.startsWith(thirdArgument))
+                            .filter(StartsWithIgnoreCase.prefix(thirdArgument))
                             .sorted()
                             .collect(Collectors.toUnmodifiableList());
         }
@@ -158,7 +159,7 @@ public class ShowCommand extends AbstractCommand {
                 return plugin.getStorage().getPlayerDataYamlFiles(target.getUniqueId())
                         .map(Path::getFileName)
                         .map(Path::toString)
-                        .filter(path -> path.startsWith(fourthArgument))
+                        .filter(StartsWithIgnoreCase.prefix(fourthArgument))
                         .sorted()
                         .collect(Collectors.toUnmodifiableList());
             }

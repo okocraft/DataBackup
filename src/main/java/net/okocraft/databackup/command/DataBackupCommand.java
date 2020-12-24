@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -83,7 +84,7 @@ public class DataBackupCommand extends AbstractCommand {
             return subCommandHolder.getSubCommands()
                     .stream()
                     .map(Command::getName)
-                    .filter(cmd -> cmd.startsWith(firstArgument.get()))
+                    .filter(cmd -> cmd.toLowerCase().startsWith(firstArgument.get().toLowerCase()))
                     .sorted()
                     .collect(Collectors.toList());
         } else {
