@@ -14,16 +14,14 @@ import net.okocraft.databackup.storage.PlayerDataFile;
 import net.okocraft.databackup.task.BackupTask;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class BackupCommand extends AbstractCommand {
 
@@ -72,14 +70,18 @@ public class BackupCommand extends AbstractCommand {
             return Collections.emptyList();
         }
 
-        List<String> result = new LinkedList<>();
+        var secondArgument = args.get(1).get();
+
+        var result =
+                plugin.getServer().getOnlinePlayers()
+                        .stream()
+                        .map(HumanEntity::getName)
+                        .filter(player -> player.startsWith(secondArgument))
+                        .collect(Collectors.toList());
 
         result.add("all");
-        plugin.getServer().getOnlinePlayers().stream().map(HumanEntity::getName).forEach(result::add);
 
-        Argument secondArgument = args.get(1);
-
-        return StringUtil.copyPartialMatches(secondArgument.get(), result, new ArrayList<>());
+        return result;
     }
 
     @NotNull

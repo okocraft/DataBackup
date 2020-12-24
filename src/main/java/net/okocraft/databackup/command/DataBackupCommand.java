@@ -20,10 +20,8 @@ import net.okocraft.databackup.command.subcommand.ShowCommand;
 import net.okocraft.databackup.lang.DefaultMessage;
 import net.okocraft.databackup.lang.MessageProvider;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -82,10 +80,12 @@ public class DataBackupCommand extends AbstractCommand {
         Argument firstArgument = context.getArguments().get(0);
 
         if (args.size() == 1) {
-            return StringUtil.copyPartialMatches(
-                    firstArgument.get(),
-                    subCommandHolder.getSubCommands().stream().map(Command::getName).collect(Collectors.toList()),
-                    new ArrayList<>());
+            return subCommandHolder.getSubCommands()
+                    .stream()
+                    .map(Command::getName)
+                    .filter(cmd -> cmd.startsWith(firstArgument.get()))
+                    .sorted()
+                    .collect(Collectors.toList());
         } else {
             return subCommandHolder
                     .searchOptional(firstArgument)

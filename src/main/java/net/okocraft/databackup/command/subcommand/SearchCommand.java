@@ -21,10 +21,10 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -32,6 +32,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SearchCommand extends AbstractCommand {
+
+    private static final List<String> PAGES =
+            List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+                    .stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.toUnmodifiableList());
 
     private final DataBackup plugin;
 
@@ -91,46 +97,44 @@ public class SearchCommand extends AbstractCommand {
         }
 
         if (args.size() == 2) {
-            Argument secondArgument = args.get(1);
+            var secondArgument = args.get(1).get();
 
             var result = offline ?
                     Stream.of(plugin.getServer().getOfflinePlayers())
                             .map(OfflinePlayer::getName)
                             .filter(Objects::nonNull)
+                            .filter(player -> player.startsWith(secondArgument))
+                            .sorted()
                             .collect(Collectors.toUnmodifiableList()) :
                     plugin.getServer().getOnlinePlayers().stream()
                             .map(HumanEntity::getName)
+                            .filter(player -> player.startsWith(secondArgument))
+                            .sorted()
                             .collect(Collectors.toList());
 
             if (!offline) {
                 result.add("offline");
             }
 
-            return StringUtil.copyPartialMatches(
-                    secondArgument.get(),
-                    result,
-                    new ArrayList<>()
-            );
+            return result;
         }
 
         if (args.size() == 3) {
-            Argument thirdArgument = args.get(2);
+            var thirdArgument = args.get(2).get();
 
-            return StringUtil.copyPartialMatches(
-                    thirdArgument.get(),
-                    Stream.of(Material.values()).map(Enum::toString).collect(Collectors.toList()),
-                    new ArrayList<>()
-            );
+            return Arrays.stream(Material.values())
+                    .map(Enum::name)
+                    .filter(material -> material.startsWith(thirdArgument))
+                    .sorted()
+                    .collect(Collectors.toUnmodifiableList());
         }
 
         if (args.size() == 4) {
-            Argument fourthArgument = args.get(3);
+            var fourthArgument = args.get(3).get();
 
-            return StringUtil.copyPartialMatches(
-                    fourthArgument.get(),
-                    List.of("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"),
-                    new ArrayList<>()
-            );
+            return PAGES.stream()
+                    .filter(page -> page.startsWith(fourthArgument))
+                    .collect(Collectors.toUnmodifiableList());
         }
 
         return Collections.emptyList();

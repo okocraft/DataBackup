@@ -15,12 +15,10 @@ import net.okocraft.databackup.lang.Placeholders;
 import net.okocraft.databackup.storage.PlayerDataFile;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -115,32 +113,37 @@ public class ShowCommand extends AbstractCommand {
         }
 
         if (args.size() == 2) {
-            Argument secondArgument = args.get(1);
+            var secondArgument = args.get(1).get();
             List<String> result =
                     plugin.getDataTypeRegistry().getRegisteredDataType()
                             .stream()
                             .map(DataType::getName)
+                            .filter(str -> str.startsWith(secondArgument))
+                            .sorted()
                             .collect(Collectors.toList());
 
             if (!offline) {
                 result.add("offline");
             }
 
-            return StringUtil.copyPartialMatches(secondArgument.get(), result, new ArrayList<>());
+            return result;
         }
 
         if (args.size() == 3) {
-            Argument thirdArgument = args.get(2);
-            List<String> result = offline ?
+            var thirdArgument = args.get(2).get();
+
+            return offline ?
                     Stream.of(plugin.getServer().getOfflinePlayers())
                             .map(OfflinePlayer::getName)
                             .filter(Objects::nonNull)
+                            .filter(player -> player.startsWith(thirdArgument))
+                            .sorted()
                             .collect(Collectors.toList()) :
                     plugin.getServer().getOnlinePlayers().stream()
                             .map(HumanEntity::getName)
+                            .filter(player -> player.startsWith(thirdArgument))
+                            .sorted()
                             .collect(Collectors.toUnmodifiableList());
-
-            return StringUtil.copyPartialMatches(thirdArgument.get(), result, new ArrayList<>());
         }
 
         if (args.size() == 4) {
@@ -148,16 +151,14 @@ public class ShowCommand extends AbstractCommand {
             OfflinePlayer target = BukkitParser.OFFLINE_PLAYER.parse(thirdArgument);
 
             if (target != null) {
-                Argument fourthArgument = args.get(3);
+                var fourthArgument = args.get(3).get();
 
-                return StringUtil.copyPartialMatches(
-                        fourthArgument.get(),
-                        plugin.getStorage().getPlayerDataYamlFiles(target.getUniqueId())
-                                .map(Path::getFileName)
-                                .map(Path::toString)
-                                .collect(Collectors.toUnmodifiableList()),
-                        new ArrayList<>()
-                );
+                return plugin.getStorage().getPlayerDataYamlFiles(target.getUniqueId())
+                        .map(Path::getFileName)
+                        .map(Path::toString)
+                        .filter(path -> path.startsWith(fourthArgument))
+                        .sorted()
+                        .collect(Collectors.toUnmodifiableList());
             }
         }
 
