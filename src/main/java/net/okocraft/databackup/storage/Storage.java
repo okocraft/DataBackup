@@ -51,10 +51,6 @@ public class Storage {
         }
     }
 
-    public long getCacheSize() {
-        return cache.size();
-    }
-
     public Path getRootDirectory() {
         return rootDir;
     }
