@@ -43,9 +43,12 @@ public class Storage {
         getPlayerDirectories();
     }
 
-    public void clearCache() {
+    public void clearCache(boolean reloadPlayers) {
         cache.invalidateAll();
-        getPlayerDirectories();
+
+        if (reloadPlayers) {
+            getPlayerDirectories();
+        }
     }
 
     public long getCacheSize() {
