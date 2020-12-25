@@ -5,9 +5,9 @@ import com.github.siroshun09.mccommand.common.AbstractCommand;
 import com.github.siroshun09.mccommand.common.CommandResult;
 import com.github.siroshun09.mccommand.common.argument.Argument;
 import com.github.siroshun09.mccommand.common.context.CommandContext;
+import com.github.siroshun09.mccommand.common.filter.StringFilter;
 import com.github.siroshun09.mccommand.common.sender.Sender;
 import net.okocraft.databackup.DataBackup;
-import net.okocraft.databackup.command.StartsWithIgnoreCase;
 import net.okocraft.databackup.lang.DefaultMessage;
 import net.okocraft.databackup.lang.MessageProvider;
 import net.okocraft.databackup.lang.Placeholders;
@@ -72,12 +72,14 @@ public class BackupCommand extends AbstractCommand {
         }
 
         var secondArgument = args.get(1).get();
+        var filter = StringFilter.startsWithIgnoreCase(secondArgument);
 
         var result =
                 plugin.getServer().getOnlinePlayers()
                         .stream()
                         .map(HumanEntity::getName)
-                        .filter(StartsWithIgnoreCase.prefix(secondArgument))
+                        .filter(filter)
+                        .sorted()
                         .collect(Collectors.toList());
 
         result.add("all");

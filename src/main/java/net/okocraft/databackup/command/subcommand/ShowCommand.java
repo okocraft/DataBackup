@@ -6,9 +6,9 @@ import com.github.siroshun09.mccommand.common.AbstractCommand;
 import com.github.siroshun09.mccommand.common.CommandResult;
 import com.github.siroshun09.mccommand.common.argument.Argument;
 import com.github.siroshun09.mccommand.common.context.CommandContext;
+import com.github.siroshun09.mccommand.common.filter.StringFilter;
 import com.github.siroshun09.mccommand.common.sender.Sender;
 import net.okocraft.databackup.DataBackup;
-import net.okocraft.databackup.command.StartsWithIgnoreCase;
 import net.okocraft.databackup.data.DataType;
 import net.okocraft.databackup.lang.DefaultMessage;
 import net.okocraft.databackup.lang.MessageProvider;
@@ -115,11 +115,13 @@ public class ShowCommand extends AbstractCommand {
 
         if (args.size() == 2) {
             var secondArgument = args.get(1).get();
-            List<String> result =
+            var filter = StringFilter.startsWithIgnoreCase(secondArgument);
+
+            var result =
                     plugin.getDataTypeRegistry().getRegisteredDataType()
                             .stream()
                             .map(DataType::getName)
-                            .filter(StartsWithIgnoreCase.prefix(secondArgument))
+                            .filter(filter)
                             .sorted()
                             .collect(Collectors.toList());
 
@@ -132,6 +134,7 @@ public class ShowCommand extends AbstractCommand {
 
         if (args.size() == 3) {
             var thirdArgument = args.get(2).get();
+            var filter = StringFilter.startsWithIgnoreCase(thirdArgument);
 
             return offline ?
                     plugin.getStorage().getBackedUpPlayers()
@@ -139,12 +142,12 @@ public class ShowCommand extends AbstractCommand {
                             .map(Bukkit::getOfflinePlayer)
                             .map(OfflinePlayer::getName)
                             .filter(Objects::nonNull)
-                            .filter(StartsWithIgnoreCase.prefix(thirdArgument))
+                            .filter(filter)
                             .sorted()
                             .collect(Collectors.toUnmodifiableList()) :
                     plugin.getServer().getOnlinePlayers().stream()
                             .map(HumanEntity::getName)
-                            .filter(StartsWithIgnoreCase.prefix(thirdArgument))
+                            .filter(filter)
                             .sorted()
                             .collect(Collectors.toUnmodifiableList());
         }
@@ -155,11 +158,12 @@ public class ShowCommand extends AbstractCommand {
 
             if (target != null) {
                 var fourthArgument = args.get(3).get();
+                var filter = StringFilter.startsWithIgnoreCase(fourthArgument);
 
                 return plugin.getStorage().getPlayerDataYamlFiles(target.getUniqueId())
                         .map(Path::getFileName)
                         .map(Path::toString)
-                        .filter(StartsWithIgnoreCase.prefix(fourthArgument))
+                        .filter(filter)
                         .sorted()
                         .collect(Collectors.toUnmodifiableList());
             }

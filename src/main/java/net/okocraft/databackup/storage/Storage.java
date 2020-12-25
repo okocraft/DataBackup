@@ -43,13 +43,12 @@ public class Storage {
         getPlayerDirectories();
     }
 
-    public void clearCache() {
+    public void clearCache(boolean reloadPlayers) {
         cache.invalidateAll();
-        getPlayerDirectories();
-    }
 
-    public long getCacheSize() {
-        return cache.size();
+        if (reloadPlayers) {
+            getPlayerDirectories();
+        }
     }
 
     public Path getRootDirectory() {
