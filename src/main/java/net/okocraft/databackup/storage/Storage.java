@@ -12,7 +12,8 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -21,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class Storage {
+
+    private static final DateTimeFormatter FILENAME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd-hh-mm-ss");
 
     private final Path rootDir;
     private final Cache<Path, PlayerDataFile> cache =
@@ -72,7 +75,7 @@ public class Storage {
     }
 
     public @NotNull PlayerDataFile createPlayerDataFile(@NotNull UUID owner) {
-        var filePath = getPlayerDirectory(owner).resolve(Instant.now().toEpochMilli() + ".yml");
+        var filePath = getPlayerDirectory(owner).resolve(createFileName());
         var parent = filePath.getParent();
 
         if (!Files.exists(parent)) {
@@ -139,4 +142,9 @@ public class Storage {
             return null;
         }
     }
+
+    private @NotNull String createFileName() {
+        return FILENAME_FORMAT.format(LocalDateTime.now()) + ".yml";
+    }
+
 }
