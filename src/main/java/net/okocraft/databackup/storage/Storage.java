@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 
 public class Storage {
 
-    private static final DateTimeFormatter FILENAME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd-hh-mm-ss");
+    private static final DateTimeFormatter FILENAME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
 
     private final Path rootDir;
     private final Cache<Path, PlayerDataFile> cache =

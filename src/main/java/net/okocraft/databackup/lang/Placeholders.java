@@ -15,7 +15,7 @@ import static com.github.siroshun09.mcmessage.replacer.FunctionalPlaceholder.cre
 
 public final class Placeholders {
 
-    private final static DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+    private final static DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static final Placeholder PERMISSION = Placeholder.create("%permission%");
     public static final FunctionalPlaceholder<Argument> PLAYER_NAME = create("%player%", Argument::get);
