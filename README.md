@@ -8,8 +8,8 @@
 
 ## Requirements
 
-- Java 11+
-- Spigot 1.15+
+- Java 11+ 
+- Paper (or Spigot) 1.15+
 - (Optional) Vault (所持金のバックアップ機能)
 - (Optional) mcMMO (スキルレベルのバックアップ機能)
 
@@ -34,7 +34,7 @@
 ※ offline と指定しない限り、オンラインプレイヤーとして検索されます。
 ```
 
-バックアップするデータタイプ: 持ち物 `inventory`, エンダーチェスト `enderchest`, 所持金 `money` ,経験値 `xp` 
+バックアップするデータタイプ: 持ち物 `inventory`, エンダーチェスト `enderchest`, 所持金 `money`, 経験値 `xp` 
 
 ## License
 
