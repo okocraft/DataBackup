@@ -15,6 +15,8 @@ final class ItemStackSerializer {
 
     private static final boolean isPaper = checkPaper();
     private static final String EMPTY = "";
+    private static final String PREFIX_PAPER = "PAPER-";
+    private static final String PREFIX_BUKKIT = "BUKKIT-";
     private static final byte[] EMPTY_BYTE = new byte[0];
     private static final ItemStack AIR = new ItemStack(Material.AIR);
 
@@ -24,14 +26,18 @@ final class ItemStackSerializer {
         }
 
         byte[] bytes;
+        String prefix;
+
         if (isPaper) {
+            prefix = PREFIX_PAPER;
             bytes = serializeByPaperMethod(itemStack);
         } else {
+            prefix = PREFIX_BUKKIT;
             bytes = serializeByBukkitMethod(itemStack);
         }
 
         if (bytes.length != 0) {
-            return Base64.getEncoder().encodeToString(bytes);
+            return prefix + Base64.getEncoder().encodeToString(bytes);
         } else {
             return EMPTY;
         }
@@ -42,13 +48,23 @@ final class ItemStackSerializer {
             return AIR;
         }
 
-        var bytes = Base64.getDecoder().decode(data);
+        if (data.startsWith(PREFIX_PAPER)) {
+            if (isPaper) {
+                data = data.substring(PREFIX_PAPER.length());
+                var bytes = Base64.getDecoder().decode(data);
+                return deserializeByPaperMethod(bytes);
+            } else {
+                return AIR;
+            }
+        }
 
-        if (isPaper) {
-            return deserializeByPaperMethod(bytes);
-        } else {
+        if (data.startsWith(PREFIX_BUKKIT)) {
+            data = data.substring(PREFIX_BUKKIT.length());
+            var bytes = Base64.getDecoder().decode(data);
             return deserializeByBukkitMethod(bytes);
         }
+
+        return AIR;
     }
 
     private static byte[] serializeByPaperMethod(@NotNull ItemStack itemStack) {
