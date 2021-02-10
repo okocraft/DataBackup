@@ -45,10 +45,6 @@
             <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
         <repository>
-            <id>bintray-okocraft-maven-repo</id>
-            <url>https://dl.bintray.com/okocraft/maven-repo</url>
-        </repository>
-        <repository>
             <id>jcenter</id>
             <url>https://jcenter.bintray.com</url>
         </repository>
