@@ -77,7 +77,14 @@ public class EnderChestData implements DataType<List<ItemStack>> {
         return yaml -> {
             List<ItemStack> items = new ArrayList<>(ARRAY_LENGTH);
             for (int i = 0; i < ARRAY_LENGTH; i++) {
-                items.add(yaml.getItemStack(getName() + "." + i));
+                var oldPath = getName() + "." + i;
+                if (yaml.get(oldPath) != null) {
+                    items.add(yaml.getItemStack(oldPath));
+                } else {
+                    var data = yaml.getString(getName() + "-2." + i);
+                    var item = ItemStackSerializer.deserialize(data);
+                    items.add(item);
+                }
             }
             return ItemSearchable.createData(
                     UUIDValue.INSTANCE.getValue(yaml),
@@ -92,8 +99,9 @@ public class EnderChestData implements DataType<List<ItemStack>> {
         return (itemData, yaml) -> {
             for (int i = 0; i < ARRAY_LENGTH || i < itemData.get().size(); i++) {
                 var item = itemData.get().get(i);
-                if (!item.getType().isAir()) {
-                    yaml.set(getName() + "." + i, item);
+                var data = ItemStackSerializer.serialize(item);
+                if (!data.isEmpty()) {
+                    yaml.set(getName() + "-2." + i, data);
                 }
             }
         };
